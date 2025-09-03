@@ -1,6 +1,7 @@
 package com.example.demo.student_id_card;
 
 import com.example.demo.book.Book;
+import com.example.demo.book.BookStudent;
 import com.example.demo.course.Course;
 import com.example.demo.student.Student;
 import com.example.demo.student.StudentRepository;
@@ -33,7 +34,7 @@ public class StudentIdCardService {
     public ResponseEntity<LinkedHashMap<String, Object>> getStudentIdCard(UUID studentCardUuid) throws ResponseStatusException {
         LinkedHashMap<String, Object> response = new LinkedHashMap<>();
         Optional<StudentIdCard> studentIdCard = Optional.ofNullable(studentIdCardRepository.findStudentIdCardByUuid(studentCardUuid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "student card does not exist")));
-        Set<Book> book = studentIdCard.get().getBooks();
+        Set<BookStudent> book = studentIdCard.get().getBooks();
         Set<Course> courses = studentIdCard.get().getCourses();
         LinkedHashMap<String, Object> data = new LinkedHashMap<>();
         LinkedHashMap<String, Integer> list = new LinkedHashMap<>();
