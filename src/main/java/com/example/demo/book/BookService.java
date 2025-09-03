@@ -15,10 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Data
@@ -72,11 +69,11 @@ public class BookService {
         Book book = bookRepository.findByUuid(bookUuid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "book not found"));
         Map<String, String> bookData = new HashMap<>();
         Map<String, Map<String, String>> response = new HashMap<>();
-        if (book.getStudentIdCard() != null) {
-            Map<String, String> studentCard = new HashMap<>();
-            studentCard.put("studentCardUUID", String.valueOf(book.getStudentIdCard().getUuid()));
-            response.put("studentCard", studentCard);
-        }
+//        if (book.getStudentIdCard() != null) {
+//            Map<String, String> studentCard = new HashMap<>();
+//            studentCard.put("studentCardUUID", String.valueOf(book.getStudentIdCard().getUuid()));
+//            response.put("studentCard", studentCard);
+//        }
         bookData.put("UUID", String.valueOf(book.getUuid()));
         bookData.put("author", book.getAuthor());
         bookData.put("genre", book.getGenre());
@@ -143,7 +140,7 @@ public class BookService {
         Book book = bookRepository.findByUuid(bookUuid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "book does not exist"));
         StudentIdCard studentIdCard = studentIdCardRepository.findStudentIdCardByUuid(studentUuidCard).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "studentIdCard does not exist" + studentUuidCard));
         if (book.getStudentIdCard() == null) {
-            book.setStudentIdCard(studentIdCard);
+            book.setStudentIdCard((Set<BookStudent>) studentIdCard);
             bookRepository.save(book);
             return ResponseEntity.status(201).build();
         }
@@ -153,11 +150,11 @@ public class BookService {
     public ResponseEntity<?> returnStudentBorrowBooks(UUID bookUuid, UUID studentUuidCard) {
         Book book = bookRepository.findByUuid(bookUuid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "book does not exist"));
         StudentIdCard studentIdCard = studentIdCardRepository.findStudentIdCardByUuid(studentUuidCard).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "studentIdCard does not exist" + studentUuidCard));
-        if (book.getStudentIdCard() != null && book.getStudentIdCard().getUuid().equals(studentIdCard.getUuid())) {
-            book.setStudentIdCard(null);
-            bookRepository.save(book);
-            return ResponseEntity.status(200).build();
-        }
+//        if (book.getStudentIdCard() != null && book.getStudentIdCard().getUuid().equals(studentIdCard.getUuid())) {
+//            book.setStudentIdCard(null);
+//            bookRepository.save(book);
+//            return ResponseEntity.status(200).build();
+//        }
         return ResponseEntity.noContent().build();
     }
 
