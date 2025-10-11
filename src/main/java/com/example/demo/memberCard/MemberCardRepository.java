@@ -9,5 +9,5 @@ import java.util.UUID;
 @Repository
 public interface MemberCardRepository extends JpaRepository<MemberCard, Integer> {
 
-    Optional<MemberCard> findStudentIdCardByUuid(UUID studentCardNumber);
+    Optional<MemberCard> findMemberCardByUuid(UUID studentCardNumber);
 }
