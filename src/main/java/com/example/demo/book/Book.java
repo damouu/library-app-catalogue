@@ -24,7 +24,7 @@ public class Book {
     @SequenceGenerator(name = "book_sequence", allocationSize = 1, sequenceName = "book_sequence")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "book_sequence")
     @Column(updatable = false, nullable = false)
-    @Getter(onMethod = @__(@JsonIgnore)) // generate the getter with the specific annotation.
+    @Getter(onMethod = @__(@JsonIgnore))
     @Setter
     private Integer id;
 
@@ -38,14 +38,14 @@ public class Book {
     @Setter
     private boolean is_borrowed;
 
-    @Column(nullable = false, name = "added_date", columnDefinition = "DATE")
+    @Column(nullable = false, name = "added_date", columnDefinition = "timestamp")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
-    @Getter(onMethod = @__(@JsonIgnore)) // generate the getter with the specific annotation.
+    @Getter(onMethod = @__(@JsonIgnore))
     @Setter
     private LocalDate added_date;
 
-    @Column(name = "deleted_at", columnDefinition = "DATE")
+    @Column(name = "deleted_at", columnDefinition = "timestamp")
     @Getter
     @Setter
     private LocalDate deleted_at;
