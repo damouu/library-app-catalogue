@@ -176,13 +176,12 @@ public class BookService {
             status = 422;
             response = "already borrowed";
         } else {
-            Date borrow_request_date = new Date();
-            BookMemberCard BookMemberCard1 = new BookMemberCard(borrow_request_date, borrow_request_date, null);
+            BookMemberCard BookMemberCard1 = new BookMemberCard(LocalDate.now(), LocalDate.now().plusWeeks(2), null);
             BookMemberCard1.setBook(book);
             BookMemberCard1.setMemberCard(MemberCard);
             long date = System.currentTimeMillis() + 14 * 24 * 3600 * 1000;
             Date newDate = new Date(date);
-            bookStudent.get().setBorrow_end_date(newDate);
+//            bookStudent.get().setBorrow_end_date(newDate);
             bookStudentRepository.save(BookMemberCard1);
             status = 201;
             response = "created";
@@ -204,7 +203,7 @@ public class BookService {
         String response;
         if (bookStudent.isPresent() && bookStudent.get().getBorrow_return_date() == null) {
             Date borrow_request_date = new Date();
-            bookStudent.get().setBorrow_return_date(borrow_request_date);
+            bookStudent.get().setBorrow_return_date(LocalDate.now());
             bookStudentRepository.save(bookStudent.get());
             status = 200;
             response = "book returned";
@@ -233,7 +232,7 @@ public class BookService {
             long date = System.currentTimeMillis() + 14 * 24 * 3600 * 1000;
             Date newDate = new Date(date);
 //            bookStudent.get().setGranted_borrow_extend(true);
-            bookStudent.get().setBorrow_end_date(newDate);
+            bookStudent.get().setBorrow_end_date(LocalDate.now());
             bookStudentRepository.save(bookStudent.get());
             status = 201;
             response = "updated";
