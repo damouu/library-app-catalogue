@@ -68,7 +68,7 @@ public class Chapter {
     @Setter
     private LocalDate publication_date;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "series_id", referencedColumnName = "id")
     private Series series;
 
