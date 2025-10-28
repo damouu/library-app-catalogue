@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,6 +14,9 @@ public interface BookStudentRepository extends JpaRepository<BookMemberCard, Int
 
     @Query("SELECT b FROM BookMemberCard b WHERE b.book.id = :id")
     Optional<BookMemberCard> findBookStudentByID(int id);
+
+    @Query("SELECT b FROM BookMemberCard b WHERE b.borrow_uuid = :uuid")
+    Optional<List<BookMemberCard>> findBookStudentByBorrow_uuid(UUID uuid);
 
 
     @Query("SELECT b FROM BookMemberCard b WHERE b.book.id = :id  and b.borrow_return_date = null ")
