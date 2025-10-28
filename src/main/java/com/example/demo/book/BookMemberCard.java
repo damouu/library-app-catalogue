@@ -27,13 +27,13 @@ public class BookMemberCard {
 
     @Getter
     @Setter
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "book_id")
     private Book book;
 
     @Getter
     @Setter
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "memberCard")
     private MemberCard memberCard;
 
