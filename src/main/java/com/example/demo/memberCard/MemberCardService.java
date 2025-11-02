@@ -1,9 +1,6 @@
 package com.example.demo.memberCard;
 
-import com.example.demo.book.Book;
-import com.example.demo.book.BookMemberCard;
-import com.example.demo.book.BookRepository;
-import com.example.demo.book.BookStudentRepository;
+import com.example.demo.book.*;
 import lombok.Data;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +28,8 @@ public class MemberCardService {
     private final MemberCardRepository memberCardRepository;
 
     private final BookStudentRepository bookMemberCardRepository;
+
+    private final BorrowSummaryRepository borrowSummaryRepository;
 
 
     public ResponseEntity<List<MemberCard>> getMemberCards(int page, int size) {
@@ -141,6 +140,38 @@ public class MemberCardService {
         data.put("start_borrow_date", String.valueOf(bookMemberCard.get().get(0).getBorrow_return_date()));
         data.put("expected_return_borrow_date", String.valueOf(bookMemberCard.get().get(0).getBorrow_end_date()));
         data.put("actual_return_borrow_date", String.valueOf(bookMemberCard.get().get(0).getBorrow_start_date()));
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+
+    /**
+     * 会員のメンバ番号で貸し出しの履歴の機能性です。
+     *
+     * @param memberCardUUID the member card uuid
+     * @return {@link ResponseEntity>} the history　of previous borrows
+     * @throws ResponseStatusException the response status exception
+     * @apiNote {@link #SD-233  https://damou.myjetbrains.com/youtrack/issue/SD-233/44Om44O844K244O844Gu5pys44Gu6LK444GX5Ye644GX5bGl5q20 }
+     */
+    public ResponseEntity<HashMap<String, Object>> getHistory(UUID memberCardUUID) throws ResponseStatusException {
+        List<BorrowSummaryView> borrowSummaries = borrowSummaryRepository.findBorrowSummaries(memberCardUUID);
+        HashMap<String, Object> response = new LinkedHashMap<>();
+        response.put("success", true);
+        boolean unreturned_borrows = false;
+        response.put("code", 200);
+        response.put("memberCard_UUID", memberCardUUID.toString());
+        if (borrowSummaries.getFirst().getBorrowReturnDate() == null) {
+            unreturned_borrows = true;
+            response.put("unreturned_borrow_position", 0);
+        }
+        response.put("unreturned_borrows", unreturned_borrows);
+        response.put("size", borrowSummaries.size());
+        HashMap<String, Object> borrow_history = new LinkedHashMap<>();
+        for (BorrowSummaryView borrowSummaryView : borrowSummaries) {
+            List<Object> books = new ArrayList<Object>();
+            books.addAll(borrowSummaryView.getBooks());
+            borrow_history.put(String.valueOf(borrowSummaryView.getBorrowUuid()), books);
+        }
+        response.put("borrows_UUID", borrow_history);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
