@@ -61,10 +61,9 @@ public class Series {
     @Setter
     private String publisher;
 
-    @Column(name = "last_print_publication_date", nullable = true, columnDefinition = "date")
+    @Column(name = "last_print_publication_date", columnDefinition = "date")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
-    @NotNull
     @Getter(onMethod = @__(@JsonIgnore))
     @Setter
     private LocalDate last_print_publication_date;
