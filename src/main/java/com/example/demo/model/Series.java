@@ -1,6 +1,5 @@
-package com.example.demo.series;
+package com.example.demo.model;
 
-import com.example.demo.chapter.Chapter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -64,7 +63,7 @@ public class Series {
     @Column(name = "last_print_publication_date", columnDefinition = "date")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
-    @Getter(onMethod = @__(@JsonIgnore))
+    @Getter
     @Setter
     private LocalDate last_print_publication_date;
 
@@ -72,7 +71,7 @@ public class Series {
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
     @NotNull
-    @Getter(onMethod = @__(@JsonIgnore))
+    @Getter
     @Setter
     private LocalDate first_print_publication_date;
 
@@ -92,9 +91,12 @@ public class Series {
     @NotNull
     @Getter(onMethod = @__(@JsonIgnore))
     @Setter
+    @JsonIgnore
     private LocalDate created_at;
 
-    @OneToMany(mappedBy = "series")
+    @OneToMany(mappedBy = "series", fetch = FetchType.EAGER)
+    @Getter
+    @Setter
     private List<Chapter> chapters;
 
     @JsonCreator
