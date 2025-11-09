@@ -1,5 +1,6 @@
-package com.example.demo.book;
+package com.example.demo.repository;
 
+import com.example.demo.view.BorrowSummaryView;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +14,8 @@ public interface BorrowSummaryRepository extends JpaRepository<BorrowSummaryView
 
     @Query(value = """
             SELECT bmc.borrow_uuid       AS borrow_uuid,
+                   bmc.borrow_end_date         as borrow_end_date,
+                   bmc.borrow_start_date       as borrow_start_date,
                    MAX(bmc.borrow_return_date) AS borrow_return_date,
                    json_agg(
                        jsonb_build_object(
@@ -29,7 +32,7 @@ public interface BorrowSummaryRepository extends JpaRepository<BorrowSummaryView
                      JOIN student.public.member_card mc ON mc.id = bmc.member_card
                      JOIN student.public.chapter c ON c.id = b.chapter_id
             WHERE mc.member_card_uuid = :memberCardUuid
-            GROUP BY bmc.borrow_uuid
+            GROUP BY bmc.borrow_uuid, bmc.borrow_end_date, bmc.borrow_start_date
             ORDER BY borrow_return_date DESC
             LIMIT 5;
             """, nativeQuery = true)
