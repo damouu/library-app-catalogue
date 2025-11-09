@@ -1,4 +1,4 @@
-package com.example.demo.memberCard;
+package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
