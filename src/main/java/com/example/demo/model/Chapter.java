@@ -1,6 +1,5 @@
-package com.example.demo.chapter;
+package com.example.demo.model;
 
-import com.example.demo.series.Series;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,6 +14,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -64,13 +64,19 @@ public class Chapter {
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
     @NotNull
-    @Getter(onMethod = @__(@JsonIgnore))
+    @Getter
     @Setter
     private LocalDate publication_date;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "series_id", referencedColumnName = "id")
+    @JsonIgnore
     private Series series;
+
+    @OneToMany(mappedBy = "chapter", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Getter
+    @Setter
+    private List<Book> books;
 
     @Column(name = "deleted_at", columnDefinition = "timestamp")
     @Getter
@@ -82,6 +88,7 @@ public class Chapter {
     @JsonSerialize(using = LocalDateSerializer.class)
     @Getter(onMethod = @__(@JsonIgnore))
     @Setter
+    @JsonIgnore
     private LocalDate created_at;
 
     @JsonCreator
