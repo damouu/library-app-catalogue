@@ -11,7 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - uses: docker/build-push-action@v5
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
       - name: Download SHA Artifact
         uses: actions/download-artifact@v4
         with:
