@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    if: github.event.label.name == 'Approved'
+    if: github.event.label.name == 'Staging'
     runs-on: ubuntu-latest
     steps:
       - uses: bloobirds-it/action-youtrack-move@v1.0.0
@@ -17,7 +17,7 @@ jobs:
           yt-token: ${{ secrets.YOUTRACK_TOKEN }}
           yt-project-id: "SD"
           yt-column-triggers: "Test"
-          yt-column-target: "Approved"
+          yt-column-target: "Staging"
 
       - uses: actions/checkout@v2
       - uses: actions-ecosystem/action-add-labels@v1

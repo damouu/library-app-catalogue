@@ -11,15 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: bloobirds-it/action-youtrack-move@v1.0.0
-        with:
-          github-token: ${{ secrets.MyWorkflow }}
-          yt-url: ${{ secrets.YOUTRACK_URL }}
-          yt-token: ${{ secrets.YOUTRACK_TOKEN }}
-          yt-project-id: "SD"
-          yt-column-triggers: "Staging"
-          yt-column-target: "Test"
-
       - uses: actions/checkout@v4
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -66,17 +57,6 @@ jobs:
           update_existing: true
           search_existing: open
 
-      - name: move youtrack-test-failed
-        if: ${{ failure() }}
-        uses: bloobirds-it/action-youtrack-move@v1.0.0
-        with:
-          github-token: ${{ secrets.MyWorkflow }}
-          yt-url: ${{ secrets.YOUTRACK_URL }}
-          yt-token: ${{ secrets.YOUTRACK_TOKEN }}
-          yt-project-id: "SD"
-          yt-column-triggers: "Test"
-          yt-column-target: "TestFailed"
-
       - name: pull-request
         if: ${{ success() }}
         uses: repo-sync/pull-request@v2
@@ -87,5 +67,16 @@ jobs:
           destination_branch: "main"
           pr_title: ${{ github.event.head_commit.message }}
           pr_body: ${{ github.event.head_commit.message }}
-          pr_label: "Approved,TestsPassed"
+          pr_label: "Staging,TestsPassed"
           pr_assignee: "damouu"
+
+      - name: move youtrack-test-failed
+        if: ${{ failure() }}
+        uses: bloobirds-it/action-youtrack-move@v1.0.0
+        with:
+          github-token: ${{ secrets.MyWorkflow }}
+          yt-url: ${{ secrets.YOUTRACK_URL }}
+          yt-token: ${{ secrets.YOUTRACK_TOKEN }}
+          yt-project-id: "SD"
+          yt-column-triggers: "Test"
+          yt-column-target: "TestFailed"
