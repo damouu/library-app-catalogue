@@ -87,5 +87,5 @@ jobs:
           destination_branch: "main"
           pr_title: ${{ github.event.head_commit.message }}
           pr_body: ${{ github.event.head_commit.message }}
-          pr_label: "Staging,TestsPassed"
+          pr_label: "Approved,TestsPassed"
           pr_assignee: "damouu"
