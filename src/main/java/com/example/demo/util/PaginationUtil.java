@@ -10,15 +10,16 @@ public class PaginationUtil {
 
     public static Pageable extractPage(Map<String, String> allParams) {
 
-        PageRequest pageable = null;
+        PageRequest pageable;
 
-        if (allParams.size() == 2 && allParams.containsKey("page") && allParams.containsKey("size")) {
-            pageable = PageRequest.of(Integer.parseInt(allParams.get("page")), Integer.parseInt(allParams.get("size")));
-        } else if (allParams.size() > 2 && allParams.containsKey("page") && allParams.containsKey("size")) {
-            pageable = PageRequest.of(Integer.parseInt(allParams.get("page")), Integer.parseInt(allParams.get("size")), Sort.unsorted());
-        } else {
-            pageable = PageRequest.of(0, 20);
-        }
+        int page = Integer.parseInt(allParams.getOrDefault("page", "0"));
+        int size = Integer.parseInt(allParams.getOrDefault("size", "10"));
+        String sortField = allParams.getOrDefault("sort", "publicationDate");
+        String sortDirection = allParams.getOrDefault("direction", "desc");
+
+        Sort sort = sortDirection.equalsIgnoreCase("asc") ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
+
+        pageable = PageRequest.of(page, size, sort);
         return pageable;
     }
 }
