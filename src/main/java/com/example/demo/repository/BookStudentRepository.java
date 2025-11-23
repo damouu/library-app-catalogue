@@ -18,11 +18,11 @@ public interface BookStudentRepository extends JpaRepository<BookMemberCard, Int
     @Query("SELECT b FROM BookMemberCard b WHERE b.book.id = :id")
     Optional<BookMemberCard> findBookStudentByID(int id);
 
-    @Query("SELECT b FROM BookMemberCard b WHERE b.borrow_uuid = :uuid")
+    @Query("SELECT b FROM BookMemberCard b WHERE b.borrowUUID = :uuid")
     Optional<List<BookMemberCard>> findBookStudentByBorrow_uuid(UUID uuid);
 
 
-    @Query("SELECT b FROM BookMemberCard b WHERE b.book.id = :id  and b.borrow_return_date = null ")
+    @Query("SELECT b FROM BookMemberCard b WHERE b.book.id = :id  and b.borrowReturnDate = null ")
     Optional<BookMemberCard> findBookStudentByIDUpdate(int id);
 
 
