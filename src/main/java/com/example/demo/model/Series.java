@@ -33,7 +33,7 @@ public class Series {
     @Column(nullable = false, columnDefinition = "UUID", name = "series_uuid")
     @Getter
     @Setter
-    private UUID series_uuid;
+    private UUID seriesUUID;
 
     @Column(name = "title", nullable = false)
     @Getter
@@ -48,7 +48,7 @@ public class Series {
     @Column(name = "cover_artwork_URL", nullable = false)
     @Getter
     @Setter
-    private String cover_artwork_URL;
+    private String coverArtworkURL;
 
     @Column(name = "illustrator", nullable = false)
     @Getter
@@ -65,7 +65,7 @@ public class Series {
     @JsonSerialize(using = LocalDateSerializer.class)
     @Getter
     @Setter
-    private LocalDate last_print_publication_date;
+    private LocalDate lastPrintPublicationDate;
 
     @Column(name = "first_print_publication_date", nullable = false, columnDefinition = "date")
     @JsonDeserialize(using = LocalDateDeserializer.class)
@@ -73,7 +73,7 @@ public class Series {
     @NotNull
     @Getter
     @Setter
-    private LocalDate first_print_publication_date;
+    private LocalDate firstPrintPublicationDate;
 
     @Column(name = "author", nullable = false)
     @Getter
@@ -92,7 +92,7 @@ public class Series {
     @Getter(onMethod = @__(@JsonIgnore))
     @Setter
     @JsonIgnore
-    private LocalDate created_at;
+    private LocalDate createdAt;
 
     @OneToMany(mappedBy = "series", fetch = FetchType.EAGER)
     @Getter
@@ -102,17 +102,17 @@ public class Series {
     @JsonCreator
     public Series(Integer id, UUID series_uuid, String title, String genre, String cover_artwork_URL, String illustrator, String publisher, LocalDate last_print_publication_date, LocalDate first_print_publication_date, String author, LocalDate deleted_at, LocalDate created_at) {
         this.id = id;
-        this.series_uuid = series_uuid;
+        this.seriesUUID = series_uuid;
         this.title = title;
         this.genre = genre;
-        this.cover_artwork_URL = cover_artwork_URL;
+        this.coverArtworkURL = cover_artwork_URL;
         this.illustrator = illustrator;
         this.publisher = publisher;
-        this.last_print_publication_date = last_print_publication_date;
-        this.first_print_publication_date = first_print_publication_date;
+        this.lastPrintPublicationDate = last_print_publication_date;
+        this.firstPrintPublicationDate = first_print_publication_date;
         this.author = author;
         this.deleted_at = deleted_at;
-        this.created_at = created_at;
+        this.createdAt = created_at;
     }
 
 }
