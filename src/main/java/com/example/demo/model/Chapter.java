@@ -33,7 +33,7 @@ public class Chapter {
     @Column(nullable = false, columnDefinition = "UUID", name = "chapter_uuid")
     @Getter
     @Setter
-    private UUID chapter_uuid;
+    private UUID chapterUUID;
 
     @Column(name = "title", nullable = false)
     @Getter
@@ -43,7 +43,7 @@ public class Chapter {
     @Column(name = "second_title", nullable = false)
     @Getter
     @Setter
-    private String second_title;
+    private String secondTitle;
 
     @Column(name = "total_pages", nullable = false)
     @Getter
@@ -53,12 +53,12 @@ public class Chapter {
     @Column(name = "chapter_number", nullable = false)
     @Getter
     @Setter
-    private Integer chapter_number;
+    private Integer chapterNumber;
 
     @Column(name = "cover_artwork_URL", nullable = false)
     @Getter
     @Setter
-    private String cover_artwork_URL;
+    private String coverArtworkURL;
 
     @Column(name = "publication_date", nullable = false, columnDefinition = "Date")
     @JsonDeserialize(using = LocalDateDeserializer.class)
@@ -66,7 +66,7 @@ public class Chapter {
     @NotNull
     @Getter
     @Setter
-    private LocalDate publication_date;
+    private LocalDate publicationDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "series_id", referencedColumnName = "id")
@@ -89,20 +89,20 @@ public class Chapter {
     @Getter(onMethod = @__(@JsonIgnore))
     @Setter
     @JsonIgnore
-    private LocalDate created_at;
+    private LocalDate createdAT;
 
     @JsonCreator
     public Chapter(Integer id, UUID chapter_uuid, String title, String second_title, Integer totalPages, Integer chapter_number, String cover_artwork_URL, LocalDate publication_date, Series series, LocalDate deleted_at, LocalDate created_at) {
         this.id = id;
-        this.chapter_uuid = chapter_uuid;
+        this.chapterUUID = chapter_uuid;
         this.title = title;
-        this.second_title = second_title;
+        this.secondTitle = second_title;
         this.totalPages = totalPages;
-        this.chapter_number = chapter_number;
-        this.cover_artwork_URL = cover_artwork_URL;
-        this.publication_date = publication_date;
+        this.chapterNumber = chapter_number;
+        this.coverArtworkURL = cover_artwork_URL;
+        this.publicationDate = publication_date;
         this.series = series;
         this.deleted_at = deleted_at;
-        this.created_at = created_at;
+        this.createdAT = created_at;
     }
 }
