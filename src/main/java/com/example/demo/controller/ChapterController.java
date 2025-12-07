@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -28,6 +29,11 @@ public class ChapterController {
     @GetMapping(path = "/{chapterUUID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Chapter getChapterUUID(@PathVariable("chapterUUID") UUID chapterUUID) {
         return chapterService.getChapterUUID(chapterUUID);
+    }
+
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public List<Chapter> getChapterTOP(@RequestBody List<UUID> chaptersUUID) {
+        return chapterService.getChapterTOP(chaptersUUID);
     }
 
 }
