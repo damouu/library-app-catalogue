@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.model.Chapter;
- import com.example.demo.repository.ChapterRepository;
+import com.example.demo.repository.ChapterRepository;
 import com.example.demo.spec.ChapterSpecification;
 import com.example.demo.util.PaginationUtil;
 import lombok.Data;
@@ -16,10 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 
 @Data
@@ -51,6 +48,16 @@ public class ChapterService {
     public List<Chapter> getChapterTOP(List<UUID> chaptersUUID) throws ResponseStatusException {
         List<Chapter> chapters = chapterRepository.findByChapterUUIDIn(chaptersUUID);
         return ResponseEntity.ok(chapters).getBody();
+    }
+
+    public HashMap<String, List<Chapter>> getChapters(List<UUID> chaptersUUID) {
+        List<Chapter> chapters = chapterRepository.findByChapterUUIDInAndDeletedATIsNull(chaptersUUID);
+        if (chapters.size() != chaptersUUID.size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more chapters do not exist or are deleted. Missing UUIDs");
+        }
+        HashMap<String, List<Chapter>> capitalCities = new HashMap<>();
+        capitalCities.put("chapters", chapters);
+        return ResponseEntity.ok(capitalCities).getBody();
     }
 
 
