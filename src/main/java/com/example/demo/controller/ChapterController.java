@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -34,6 +35,11 @@ public class ChapterController {
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public List<Chapter> getChapterTOP(@RequestBody List<UUID> chaptersUUID) {
         return chapterService.getChapterTOP(chaptersUUID);
+    }
+
+    @PostMapping(path = "/query", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public HashMap<String, List<Chapter>> getChapters(@RequestBody List<UUID> chaptersUUID) {
+        return chapterService.getChapters(chaptersUUID);
     }
 
 }
