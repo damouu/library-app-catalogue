@@ -18,12 +18,12 @@ public interface ChapterRepository extends JpaRepository<Chapter, Integer>, JpaS
 
     Page<Chapter> findAll(Specification<Chapter> specification, Pageable pageable);
 
-    Optional<Chapter> findByChapterUUIDAndDeletedATIsNull(UUID chapterUUID);
+    Optional<Chapter> findByUuidAndDeletedAtIsNull(UUID chapterUUID);
 
-    List<Chapter> findByChapterUUIDInAndDeletedATIsNull(Collection<UUID> chapterUUIDs);
+    List<Chapter> findByUuidInAndDeletedAtIsNull(Collection<UUID> chapterUUIDs);
 
-    Page<Chapter> findBySeriesSeriesUUID(UUID chapterUUID, Pageable pageable);
+    Page<Chapter> findBySeriesUuid(UUID chapterUUID, Pageable pageable);
 
-    List<Chapter> findByChapterUUIDIn(List<UUID> chapterUuids);
+    List<Chapter> findByUuidIn(List<UUID> chapterUuids);
 
 }
