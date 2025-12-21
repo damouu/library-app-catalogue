@@ -16,6 +16,6 @@ public interface SeriesRepository extends JpaRepository<Series, Integer>, JpaSpe
 
     Page<Series> findAll(Specification<Series> specification, Pageable pageable);
 
-    Optional<Series> findBySeriesUUIDAndDeletedATIsNull(UUID seriesUUID);
+    Optional<Series> findByUuidAndDeletedAtIsNull(UUID seriesUUID);
 
 }

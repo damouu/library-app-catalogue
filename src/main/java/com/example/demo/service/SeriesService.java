@@ -42,9 +42,9 @@ public class SeriesService {
         Page<Chapter> chapters;
         boolean hasPageParam = allParams.containsKey("page");
         boolean hasSizeParam = allParams.containsKey("size");
-        Optional<Series> series = seriesRepository.findBySeriesUUIDAndDeletedATIsNull(seriesUUID);
+        Optional<Series> series = seriesRepository.findByUuidAndDeletedAtIsNull(seriesUUID);
         if (hasPageParam && hasSizeParam) {
-            chapters = chapterRepository.findBySeriesSeriesUUID(seriesUUID, pageRequest);
+            chapters = chapterRepository.findBySeriesUuid(seriesUUID, pageRequest);
         } else {
             Specification<Chapter> baseSpecification = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.and(criteriaBuilder.and(criteriaBuilder.equal(root.get("series"), series.get()), criteriaBuilder.isNull(root.get("deletedAT"))));
             Specification<Chapter> chapterSpecification = ChapterSpecification.filterChapter(allParams);

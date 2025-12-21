@@ -9,17 +9,15 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Entity(name = "series")
-@Table(name = "series", uniqueConstraints = {@UniqueConstraint(name = "series_uuid", columnNames = "series_uuid")})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
 @Getter
 @Setter
 public class Series {
@@ -30,45 +28,42 @@ public class Series {
     @JsonIgnore
     private Integer id;
 
-    @Column(nullable = false, columnDefinition = "UUID", name = "series_uuid")
-    private UUID seriesUUID;
+    @Column(nullable = false, unique = true, updatable = false)
+    private UUID uuid;
 
-    @Column(name = "title", nullable = false)
+    @Column(nullable = false)
     private String title;
 
-    @Column(name = "genre", nullable = false)
+    @Column(nullable = false)
     private String genre;
 
-    @Column(name = "cover_artwork_URL", nullable = false)
-    private String coverArtworkURL;
+    @Column(nullable = false)
+    private String coverArtworkUrl;
 
-    @Column(name = "illustrator", nullable = false)
+    @Column(nullable = false)
     private String illustrator;
 
-    @Column(name = "publisher", nullable = false)
+    @Column(nullable = false)
     private String publisher;
 
-    @Column(name = "last_print_publication_date", columnDefinition = "date")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate lastPrintPublicationDate;
 
-    @Column(name = "first_print_publication_date", nullable = false, columnDefinition = "date")
+    @Column(nullable = false)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
-    @NotNull
     private LocalDate firstPrintPublicationDate;
 
-    @Column(name = "author", nullable = false)
+    @Column(nullable = false)
     private String author;
 
-    @Column(name = "deleted_at", columnDefinition = "timestamp")
-    private LocalDate deletedAT;
+    @Column(columnDefinition = "timestamp")
+    private LocalDate deletedAt;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "timestamp")
+    @Column(nullable = false, columnDefinition = "timestamp")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
-    @NotNull
     @JsonIgnore
     private LocalDate createdAt;
 

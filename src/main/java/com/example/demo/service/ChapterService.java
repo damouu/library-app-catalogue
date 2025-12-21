@@ -46,12 +46,12 @@ public class ChapterService {
     }
 
     public List<Chapter> getChapterTOP(List<UUID> chaptersUUID) throws ResponseStatusException {
-        List<Chapter> chapters = chapterRepository.findByChapterUUIDIn(chaptersUUID);
+        List<Chapter> chapters = chapterRepository.findByUuidIn(chaptersUUID);
         return ResponseEntity.ok(chapters).getBody();
     }
 
     public HashMap<String, List<Chapter>> getChapters(List<UUID> chaptersUUID) {
-        List<Chapter> chapters = chapterRepository.findByChapterUUIDInAndDeletedATIsNull(chaptersUUID);
+        List<Chapter> chapters = chapterRepository.findByUuidInAndDeletedAtIsNull(chaptersUUID);
         if (chapters.size() != chaptersUUID.size()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more chapters do not exist or are deleted. Missing UUIDs");
         }
@@ -62,7 +62,7 @@ public class ChapterService {
 
 
     public Chapter getChapterUUID(UUID chapterUUID) throws ResponseStatusException {
-        Optional<Chapter> chapter = Optional.ofNullable(chapterRepository.findByChapterUUIDAndDeletedATIsNull(chapterUUID).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "chapter does not exist")));
+        Optional<Chapter> chapter = Optional.ofNullable(chapterRepository.findByUuidAndDeletedAtIsNull(chapterUUID).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "chapter does not exist")));
         return ResponseEntity.status(HttpStatus.OK).body(chapter.get()).getBody();
     }
 }
