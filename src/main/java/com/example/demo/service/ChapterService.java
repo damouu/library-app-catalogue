@@ -15,7 +15,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 
 @Service
@@ -42,21 +44,6 @@ public class ChapterService {
             default:
                 throw new IllegalStateException("Unexpected value: " + typeValue);
         }
-    }
-
-    public List<Chapter> getChapterTOP(List<UUID> chaptersUUID) throws ResponseStatusException {
-        List<Chapter> chapters = chapterRepository.findByUuidIn(chaptersUUID);
-        return ResponseEntity.ok(chapters).getBody();
-    }
-
-    public HashMap<String, List<Chapter>> getChapters(List<UUID> chaptersUUID) {
-        List<Chapter> chapters = chapterRepository.findByUuidInAndDeletedAtIsNull(chaptersUUID);
-        if (chapters.size() != chaptersUUID.size()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more chapters do not exist or are deleted. Missing UUIDs");
-        }
-        HashMap<String, List<Chapter>> capitalCities = new HashMap<>();
-        capitalCities.put("chapters", chapters);
-        return ResponseEntity.ok(capitalCities).getBody();
     }
 
 
