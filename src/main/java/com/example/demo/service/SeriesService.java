@@ -7,7 +7,6 @@ import com.example.demo.repository.SeriesRepository;
 import com.example.demo.spec.ChapterSpecification;
 import com.example.demo.spec.SeriesSpecification;
 import com.example.demo.util.PaginationUtil;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +20,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-@Data
 @Service
 @RequiredArgsConstructor
 public class SeriesService {

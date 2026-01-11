@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,10 +18,7 @@ public interface ChapterRepository extends JpaRepository<Chapter, Integer>, JpaS
 
     Optional<Chapter> findByUuidAndDeletedAtIsNull(UUID chapterUUID);
 
-    List<Chapter> findByUuidInAndDeletedAtIsNull(Collection<UUID> chapterUUIDs);
-
     Page<Chapter> findBySeriesUuid(UUID chapterUUID, Pageable pageable);
 
-    List<Chapter> findByUuidIn(List<UUID> chapterUuids);
 
 }
