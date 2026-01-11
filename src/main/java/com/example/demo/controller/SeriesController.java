@@ -29,7 +29,7 @@ public class SeriesController {
     }
 
     @GetMapping(path = "/{seriesUUID}/chapters", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Page<Chapter>> getSeriesChapters(@RequestParam Map<String, ?> allParams, @PathVariable("seriesUUID") UUID seriesUUID) {
+    public ResponseEntity<Page<Chapter>> getSeriesChapters(@RequestParam Map<String, ?> allParams, @PathVariable UUID seriesUUID) {
         return seriesService.getSeriesChapters(allParams, seriesUUID);
     }
 
