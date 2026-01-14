@@ -2,7 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Chapter;
 import com.example.demo.service.ChapterService;
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.UUID;
 
-@Data
 @Validated
 @CrossOrigin
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/public/chapters")
 public class ChapterController {
 
