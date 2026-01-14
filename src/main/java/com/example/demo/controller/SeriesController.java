@@ -4,6 +4,7 @@ import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
 import com.example.demo.service.SeriesService;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.UUID;
 
-@Data
 @Validated
 @CrossOrigin
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/public/series")
 public class SeriesController {
 
