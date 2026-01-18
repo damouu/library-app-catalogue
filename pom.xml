@@ -199,12 +199,15 @@
                                     </limits>
                                 </rule>
                                 <rule>
-                                    <element>METHOD</element>
+                                    <element>CLASS</element>
+                                    <includes>
+                                        <include>com.example.demo.service*</include>
+                                    </includes>
                                     <limits>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.00</minimum>
+                                            <minimum>0.8</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
