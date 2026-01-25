@@ -42,10 +42,13 @@ jobs:
         id: run_integration_tests
         run: mvn verify
 
+      - name: Generate JaCoCo report
+        run: mvn jacoco:report
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
+          branch: test
           files: target/site/jacoco/jacoco.xml
           fail_ci_if_error: true
 
