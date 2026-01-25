@@ -14,9 +14,11 @@
     <artifactId>catalogue-service</artifactId>
     <version>1.7.2-SNAPSHOT</version>
 
-    <name>図書館 Catalogue Service</name>
+    <name>図書館システム 蔵書カタログサービス</name>
     <description>
-        図書館システムの蔵書カタログを提供し、 フロントエンドに書籍データや在庫状況を供給するAPI。
+        図書館システムにおける蔵書カタログ情報を管理・提供するサービスです。
+        書籍シリーズや巻数、タイトルなどの基本情報を保持し、
+        フロントエンドからの検索や一覧表示のために REST API を提供します。
     </description>
 
     <properties>
