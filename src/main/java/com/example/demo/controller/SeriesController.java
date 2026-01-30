@@ -3,7 +3,6 @@ package com.example.demo.controller;
 import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
 import com.example.demo.service.SeriesService;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
@@ -15,14 +14,12 @@ import java.util.Map;
 import java.util.UUID;
 
 @Validated
-@CrossOrigin
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/public/series")
+@RequestMapping("/public/series")
 public class SeriesController {
 
     private final SeriesService seriesService;
-    private UUID bookUuid;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Page<Series>> getSeries(@RequestParam Map<String, ?> allParams) {
