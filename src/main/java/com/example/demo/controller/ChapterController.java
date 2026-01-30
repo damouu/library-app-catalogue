@@ -12,10 +12,9 @@ import java.util.Map;
 import java.util.UUID;
 
 @Validated
-@CrossOrigin
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/public/chapters")
+@RequestMapping("/public/chapters")
 public class ChapterController {
 
     private final ChapterService chapterService;
