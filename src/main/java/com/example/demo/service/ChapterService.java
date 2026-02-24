@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.transaction.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Map;
@@ -47,8 +48,11 @@ public class ChapterService {
     }
 
 
-    public Chapter getChapterUUID(UUID chapterUUID) throws ResponseStatusException {
-        Optional<Chapter> chapter = Optional.ofNullable(chapterRepository.findByUuidAndDeletedAtIsNull(chapterUUID).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "chapter does not exist")));
-        return ResponseEntity.status(HttpStatus.OK).body(chapter.get()).getBody();
+    @Transactional()
+    public Chapter getChapterUUID(UUID chapterUUID) {
+        Chapter chapter = chapterRepository.findByUuidAndDeletedAtIsNull(chapterUUID).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Chapter not found"));
+        chapter.setSeriesUuid(chapter.getSeries().getUuid());
+        return ResponseEntity.status(HttpStatus.OK).body(chapter).getBody();
     }
+
 }
