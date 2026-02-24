@@ -2,7 +2,9 @@ package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -49,6 +51,11 @@ public class Chapter {
     @JoinColumn(name = "series_id", referencedColumnName = "id")
     @JsonIgnore
     private Series series;
+
+    @Formula("(SELECT s.uuid FROM series s WHERE s.id = series_id)")
+    @JsonProperty("seriesUuid")
+    private UUID seriesUuid;
+
 
     @Column(columnDefinition = "timestamp")
     private LocalDateTime deletedAt;

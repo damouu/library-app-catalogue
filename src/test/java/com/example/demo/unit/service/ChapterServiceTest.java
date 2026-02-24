@@ -99,9 +99,9 @@ class ChapterServiceTest {
     void getChapterUUID_Throw_Exception() {
         ResponseStatusException exception = Assertions.assertThrows(ResponseStatusException.class, () -> {
             chapterService.getChapterUUID(chapter.getUuid());
-        }, "chapter does not exist");
+        }, "Chapter not found");
         Assertions.assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
-        Assertions.assertEquals("404 NOT_FOUND \"chapter does not exist\"", exception.getMessage());
+        Assertions.assertEquals("404 NOT_FOUND \"Chapter not found\"", exception.getMessage());
         Mockito.verify(chapterRepository, Mockito.times(1)).findByUuidAndDeletedAtIsNull(chapter.getUuid());
     }
 
