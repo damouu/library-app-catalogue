@@ -15,11 +15,13 @@ import java.util.UUID;
 @Repository
 public interface ChapterRepository extends JpaRepository<Chapter, Integer>, JpaSpecificationExecutor<Chapter> {
 
+    @EntityGraph(attributePaths = {"series"})
     Page<Chapter> findAll(Specification<Chapter> specification, Pageable pageable);
 
     @EntityGraph(attributePaths = {"series"})
     Optional<Chapter> findByUuidAndDeletedAtIsNull(UUID chapterUUID);
 
+    @EntityGraph(attributePaths = {"series"})
     Page<Chapter> findBySeriesUuid(UUID chapterUUID, Pageable pageable);
 
 
