@@ -4,6 +4,7 @@ import com.example.demo.model.Chapter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -16,6 +17,7 @@ public interface ChapterRepository extends JpaRepository<Chapter, Integer>, JpaS
 
     Page<Chapter> findAll(Specification<Chapter> specification, Pageable pageable);
 
+    @EntityGraph(attributePaths = {"series"})
     Optional<Chapter> findByUuidAndDeletedAtIsNull(UUID chapterUUID);
 
     Page<Chapter> findBySeriesUuid(UUID chapterUUID, Pageable pageable);
