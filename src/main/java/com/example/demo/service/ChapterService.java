@@ -48,10 +48,8 @@ public class ChapterService {
     }
 
 
-    @Transactional()
     public Chapter getChapterUUID(UUID chapterUUID) {
         Chapter chapter = chapterRepository.findByUuidAndDeletedAtIsNull(chapterUUID).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Chapter not found"));
-        chapter.setSeriesUuid(chapter.getSeries().getUuid());
         return ResponseEntity.status(HttpStatus.OK).body(chapter).getBody();
     }
 
