@@ -1,10 +1,9 @@
 package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -50,14 +49,11 @@ public class Chapter {
     @Column(nullable = false)
     private LocalDate publicationDate;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "series_id", referencedColumnName = "id")
-    @JsonIgnore
+    @JsonIgnoreProperties({"chapters", "handler", "hibernateLazyInitializer"})
     private Series series;
-
-    @Formula("(SELECT s.uuid FROM series s WHERE s.id = series_id)")
-    @JsonProperty("seriesUuid")
-    private UUID seriesUuid;
 
 
     @Column(columnDefinition = "timestamp")
