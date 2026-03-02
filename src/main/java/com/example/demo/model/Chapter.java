@@ -44,6 +44,9 @@ public class Chapter {
     @Column(nullable = false)
     private String coverArtworkUrl;
 
+    @Column(columnDefinition = "TEXT")
+    private String summary;
+
     @Column(nullable = false)
     private LocalDate publicationDate;
 
