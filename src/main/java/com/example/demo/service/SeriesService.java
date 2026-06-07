@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.CreateSeriesRequest;
+import com.example.demo.dto.SeriesCreatedEvent;
 import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
 import com.example.demo.repository.ChapterRepository;
@@ -14,8 +16,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,6 +32,11 @@ public class SeriesService {
     private final SeriesRepository seriesRepository;
 
     private final ChapterRepository chapterRepository;
+
+    private final KafkaTemplate<UUID, Object> KafkaTemplate;
+
+    private final KafkaPayloadBuilderService payloadBuilderService;
+
 
     public ResponseEntity<Page<Series>> getSeries(Map allParams) {
         Pageable pageRequest = PaginationUtil.extractPage(allParams);
@@ -50,5 +60,23 @@ public class SeriesService {
             chapters = chapterRepository.findAll(finalSpec, pageRequest);
         }
         return ResponseEntity.status(HttpStatus.OK).body(chapters);
+    }
+
+    /**
+     * @param request
+     * @return
+     */
+    public ResponseEntity<String> createSeries(CreateSeriesRequest request) {
+        if (seriesRepository.existsByTitle(request.getTitle())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "このシリーズは既に登録されています。");
+        }
+
+        Series series = Series.builder().uuid(UUID.randomUUID()).title(request.getTitle()).genre(request.getGenre()).coverArtworkUrl(request.getCoverArtworkUrl()).illustrator(request.getIllustrator()).publisher(request.getPublisher()).author(request.getAuthor()).firstPrintPublicationDate(request.getFirstPrintPublicationDate()).lastPrintPublicationDate(request.getLastPrintPublicationDate()).createdAt(LocalDateTime.now()).build();
+        UUID eventUUID = UUID.randomUUID();
+        SeriesCreatedEvent createdEvent = payloadBuilderService.seriesCreatedEvent(series, "SERIES_CREATED", "library-app-catalogue-v1", eventUUID);
+        seriesRepository.save(series);
+        KafkaTemplate.send("library.catalog.v1", eventUUID, createdEvent);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdEvent.getData().getSeries_uuid().toString());
+
     }
 }
