@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.CreateSeriesRequest;
 import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
 import com.example.demo.service.SeriesService;
@@ -29,6 +30,12 @@ public class SeriesController {
     @GetMapping(path = "/{seriesUUID}/chapters", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Page<Chapter>> getSeriesChapters(@RequestParam Map<String, ?> allParams, @PathVariable UUID seriesUUID) {
         return seriesService.getSeriesChapters(allParams, seriesUUID);
+    }
+
+    @PostMapping
+    public ResponseEntity<String> createSeries(@RequestBody CreateSeriesRequest request) {
+        return seriesService.createSeries(request);
+
     }
 
 }
