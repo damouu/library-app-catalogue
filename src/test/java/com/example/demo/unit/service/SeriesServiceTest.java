@@ -2,6 +2,7 @@ package com.example.demo.unit.service;
 
 import com.example.demo.dto.CreateSeriesRequest;
 import com.example.demo.dto.SeriesCreatedEvent;
+import com.example.demo.mapper.SeriesMapper;
 import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
 import com.example.demo.repository.ChapterRepository;
@@ -49,6 +50,9 @@ class SeriesServiceTest {
 
     @Mock
     private KafkaTemplate<UUID, Object> kafkaTemplate;
+
+    @Mock
+    private SeriesMapper seriesMapper;
 
     @InjectMocks
     private SeriesService seriesService;
@@ -128,6 +132,7 @@ class SeriesServiceTest {
     @Test
     void createSeries_false_true_case() {
         when(seriesRepository.existsByTitle(series.getTitle())).thenReturn(false);
+        when(seriesMapper.toEntity(any(CreateSeriesRequest.class))).thenReturn(series);
         when(payloadBuilderService.seriesCreatedEvent(any(Series.class), eq("SERIES_CREATED"), eq("library-app-catalogue-v1"), any(UUID.class))).thenReturn(createdEvent);
         when(kafkaTemplate.send(anyString(), any(UUID.class), any())).thenReturn(null);
         ResponseEntity<?> responseEntity = seriesService.createSeries(createSeriesRequest);

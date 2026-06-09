@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -49,16 +50,15 @@ public class Chapter {
     @Column(nullable = false)
     private LocalDate publicationDate;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "series_id", referencedColumnName = "id")
     @JsonIgnoreProperties({"chapters", "handler", "hibernateLazyInitializer"})
     private Series series;
 
-
     @Column(columnDefinition = "timestamp")
     private LocalDateTime deletedAt;
 
+    @CreationTimestamp
     @Column(nullable = false, columnDefinition = "timestamp")
     @JsonIgnore
     private LocalDateTime createdAt;
