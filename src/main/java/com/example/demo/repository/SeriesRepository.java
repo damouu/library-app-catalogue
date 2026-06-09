@@ -19,4 +19,6 @@ public interface SeriesRepository extends JpaRepository<Series, Integer>, JpaSpe
     Optional<Series> findByUuidAndDeletedAtIsNull(UUID seriesUUID);
 
     boolean existsByTitle(String title);
+
+    Optional<Object> findByUuid(UUID uuid);
 }
