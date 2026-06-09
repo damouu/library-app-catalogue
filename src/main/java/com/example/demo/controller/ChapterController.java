@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.CreateChapterRequest;
 import com.example.demo.model.Chapter;
 import com.example.demo.service.ChapterService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,12 @@ public class ChapterController {
     @GetMapping(path = "/{chapterUUID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Chapter getChapterUUID(@PathVariable UUID chapterUUID) {
         return chapterService.getChapterUUID(chapterUUID);
+    }
+
+    @PostMapping
+    public ResponseEntity<String> createSeries(@RequestBody CreateChapterRequest chapterRequest) {
+        return chapterService.createChapter(chapterRequest);
+
     }
 
 }
