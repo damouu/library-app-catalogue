@@ -3,6 +3,7 @@ package com.example.demo.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -54,6 +55,7 @@ public class Series {
     @Column(columnDefinition = "timestamp")
     private LocalDateTime deletedAt;
 
+    @CreationTimestamp
     @Column(nullable = false, columnDefinition = "timestamp")
     @JsonIgnore
     private LocalDateTime createdAt;
