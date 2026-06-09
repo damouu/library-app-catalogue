@@ -24,5 +24,5 @@ public interface ChapterRepository extends JpaRepository<Chapter, Integer>, JpaS
     @EntityGraph(attributePaths = {"series"})
     Page<Chapter> findBySeriesUuid(UUID chapterUUID, Pageable pageable);
 
-
+    boolean existsBySeries_UuidAndChapterNumber(UUID seriesUuid, Integer chapterNumber);
 }
