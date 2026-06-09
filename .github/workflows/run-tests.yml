@@ -49,7 +49,7 @@ jobs:
         uses: codecov/codecov-action@v5.5.1
         with:
           files: target/site/jacoco/jacoco.xml
-          fail_ci_if_error: true
+          fail_ci_if_error: false
 
 
       - name: Create an issue
