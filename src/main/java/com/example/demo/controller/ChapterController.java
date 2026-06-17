@@ -26,14 +26,13 @@ public class ChapterController {
     }
 
     @GetMapping(path = "/{chapterUUID}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Chapter getChapterUUID(@PathVariable UUID chapterUUID) {
-        return chapterService.getChapterUUID(chapterUUID);
+    public ResponseEntity<Chapter> getChapterUUID(@PathVariable UUID chapterUUID) {
+        return ResponseEntity.of(java.util.Optional.ofNullable(chapterService.getChapterUUID(chapterUUID)));
     }
 
     @PostMapping
-    public ResponseEntity<String> createSeries(@RequestBody CreateChapterRequest chapterRequest) {
+    public Chapter createSeries(@RequestBody CreateChapterRequest chapterRequest) {
         return chapterService.createChapter(chapterRequest);
-
     }
 
 }

@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.ChapterCreatedEvent;
 import com.example.demo.dto.CreateChapterRequest;
+import com.example.demo.exception.ChapterAlreadyRegisteredException;
+import com.example.demo.exception.ChapterNotFoundException;
+import com.example.demo.exception.SeriesNotFoundException;
 import com.example.demo.mapper.ChapterMapper;
 import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
@@ -15,9 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
 import java.time.DayOfWeek;
@@ -26,6 +26,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * The type Chapter service.
+ */
 @Service
 @RequiredArgsConstructor
 public class ChapterService {
@@ -36,14 +39,14 @@ public class ChapterService {
 
     private final ChapterMapper chapterMapper;
 
-    private final KafkaTemplate<UUID, Object> KafkaTemplate;
-
-    private final KafkaPayloadBuilderService payloadBuilderService;
+    private final ChapterEventPublisher chapterEventPublisher;
 
 
     /**
-     * @param allParams
-     * @return
+     * Gets chapters.
+     *
+     * @param allParams the all params
+     * @return chapters
      */
     public ResponseEntity<?> getChapters(Map allParams) {
         LocalDate startOfWeek = LocalDate.now().with(DayOfWeek.MONDAY);
@@ -65,31 +68,36 @@ public class ChapterService {
         }
     }
 
+
     /**
-     * @param chapterUUID
-     * @return
+     * 登録されている巻を検索する。無い場合例外を発生されます。
+     *
+     * @param chapterUUID the chapter uuid
+     * @exception ChapterNotFoundException ChapterNotFoundException
+     * @return the chapter uuid
      */
     public Chapter getChapterUUID(UUID chapterUUID) {
-        Chapter chapter = chapterRepository.findByUuidAndDeletedAtIsNull(chapterUUID).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Chapter not found"));
-        return ResponseEntity.status(HttpStatus.OK).body(chapter).getBody();
+        return chapterRepository.findByUuidAndDeletedAtIsNull(chapterUUID).orElseThrow(() -> new ChapterNotFoundException(chapterUUID));
     }
 
     /**
-     * @param chapterRequest
-     * @return
+     * 新しい巻登録されたらカフカイベントを発行、配信されます。
+     *
+     * @param chapterRequest the chapter request
+     * @return Chapter
+     * @throws ChapterAlreadyRegisteredException chapterAlreadyRegisteredException
+     * @throws SeriesNotFoundException           seriesNotFoundException
      */
     @Transactional
-    public ResponseEntity<String> createChapter(CreateChapterRequest chapterRequest) {
-        Series series = (Series) seriesRepository.findByUuid((chapterRequest.getSeries_uuid())).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "シリーズが見つかりません。"));
+    public Chapter createChapter(CreateChapterRequest chapterRequest) {
+        Series series = (Series) seriesRepository.findByUuid((chapterRequest.getSeries_uuid())).orElseThrow(() -> new SeriesNotFoundException(chapterRequest.getSeries_uuid()));
         if (chapterRepository.existsBySeries_UuidAndChapterNumber(chapterRequest.getSeries_uuid(), chapterRequest.getChapter_number())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "この巻は既に登録されています。");
+            throw new ChapterAlreadyRegisteredException(chapterRequest.getChapter_number());
         }
         Chapter chapter = chapterMapper.toEntity(chapterRequest, series);
-        UUID eventUUID = UUID.randomUUID();
-        ChapterCreatedEvent chapterCreatedEvent = payloadBuilderService.chapterCreatedEvent(chapter, "CHAPTER_CREATED", "library-app-catalogue-v1", eventUUID, chapterRequest.getInitial_copies_count());
-        chapterRepository.save(chapter);
-        KafkaTemplate.send("library.catalog.v1", eventUUID, chapterCreatedEvent);
-        return ResponseEntity.status(HttpStatus.CREATED).body(chapterCreatedEvent.getData().getChapter_uuid().toString());
+        Chapter savedChapter = chapterRepository.save(chapter);
+        chapterEventPublisher.publishChapterCreated(savedChapter, chapterRequest.getInitial_copies_count());
+        return savedChapter;
     }
 
 }
