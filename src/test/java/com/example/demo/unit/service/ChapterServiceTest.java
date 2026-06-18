@@ -9,7 +9,7 @@ import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
 import com.example.demo.repository.ChapterRepository;
 import com.example.demo.repository.SeriesRepository;
-import com.example.demo.service.ChapterEventPublisher;
+import com.example.demo.service.CatalogueEventPublisher;
 import com.example.demo.service.ChapterService;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Assertions;
@@ -58,7 +58,7 @@ class ChapterServiceTest {
     private KafkaTemplate<UUID, Object> kafkaTemplate;
 
     @Mock
-    private ChapterEventPublisher chapterEventPublisher;
+    private CatalogueEventPublisher catalogueEventPublisher;
 
     Chapter chapter;
 
@@ -139,7 +139,7 @@ class ChapterServiceTest {
         Chapter result = chapterService.createChapter(request);
         assertEquals(savedChapter, result);
         verify(chapterRepository).save(any(Chapter.class));
-        verify(chapterEventPublisher).publishChapterCreated(savedChapter, request.getInitial_copies_count());
+        verify(catalogueEventPublisher).publishChapterCreated(savedChapter, request.getInitial_copies_count());
     }
 
     @Test

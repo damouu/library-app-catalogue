@@ -15,9 +15,7 @@ import java.util.UUID;
 public interface SeriesRepository extends JpaRepository<Series, Integer>, JpaSpecificationExecutor<Series> {
 
     Page<Series> findAll(Specification<Series> specification, Pageable pageable);
-
-    Optional<Series> findByUuidAndDeletedAtIsNull(UUID seriesUUID);
-
+    
     boolean existsByTitle(String title);
 
     Optional<Object> findByUuid(UUID uuid);
