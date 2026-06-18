@@ -1,12 +1,16 @@
 package com.example.demo.unit.service;
 
+import com.example.demo.dto.ChapterSummaryDTO;
 import com.example.demo.dto.CreateSeriesRequest;
 import com.example.demo.dto.SeriesCreatedEvent;
+import com.example.demo.exception.SeriesAlreadyRegisteredException;
+import com.example.demo.mapper.ChapterMapper;
 import com.example.demo.mapper.SeriesMapper;
 import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
 import com.example.demo.repository.ChapterRepository;
 import com.example.demo.repository.SeriesRepository;
+import com.example.demo.service.CatalogueEventPublisher;
 import com.example.demo.service.KafkaPayloadBuilderService;
 import com.example.demo.service.SeriesService;
 import org.instancio.Instancio;
@@ -18,23 +22,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 import static org.instancio.Select.field;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SeriesServiceTest {
@@ -49,10 +50,13 @@ class SeriesServiceTest {
     private KafkaPayloadBuilderService payloadBuilderService;
 
     @Mock
-    private KafkaTemplate<UUID, Object> kafkaTemplate;
+    private CatalogueEventPublisher catalogueEventPublisher;
 
     @Mock
     private SeriesMapper seriesMapper;
+
+    @Mock
+    private ChapterMapper chapterMapper;
 
     @InjectMocks
     private SeriesService seriesService;
@@ -86,71 +90,45 @@ class SeriesServiceTest {
     }
 
     @Test
-    void getSeriesChapters_false_case() {
-        HashMap<String, String> allParams = new HashMap<>();
-        when(chapterRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(chapter)));
-        ResponseEntity<?> responseEntity = seriesService.getSeriesChapters(allParams, series.getUuid());
-        Assertions.assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
-        verify(chapterRepository, Mockito.times(1)).findAll(any(Specification.class), any(Pageable.class));
-    }
-
-
-    @Test
-    void getSeriesChapters_true_case() {
-        HashMap<String, String> allParams = new HashMap<String, String>();
-        allParams.put("page", "0");
-        allParams.put("size", "10");
-        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "publicationDate"));
-        when(chapterRepository.findBySeriesUuid(eq(series.getUuid()), eq(pageable))).thenReturn(new PageImpl<>(List.of(chapter)));
-        ResponseEntity<?> responseEntity = seriesService.getSeriesChapters(allParams, series.getUuid());
-        Assertions.assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
-        verify(chapterRepository, Mockito.times(1)).findBySeriesUuid(series.getUuid(), pageable);
+    void shouldThrowWhenSeriesAlreadyExists() {
+        when(seriesRepository.existsByTitle(createSeriesRequest.getTitle())).thenReturn(true);
+        assertThrows(SeriesAlreadyRegisteredException.class, () -> seriesService.createSeries(createSeriesRequest));
+        verify(seriesRepository, never()).save(any());
+        verify(catalogueEventPublisher, never()).publishSeriesCreated(any());
     }
 
     @Test
-    void getSeriesChapters_true_false_case() {
-        HashMap<String, String> allParams = new HashMap<String, String>();
-        allParams.put("page", "0");
-        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "publicationDate"));
-        when(chapterRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(chapter)));
-        ResponseEntity<?> responseEntity = seriesService.getSeriesChapters(allParams, series.getUuid());
-        Assertions.assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
-        verify(chapterRepository, Mockito.times(1)).findAll(any(Specification.class), any(Pageable.class));
+    void shouldCreateSeries() {
+        when(seriesRepository.existsByTitle(createSeriesRequest.getTitle())).thenReturn(false);
+        when(seriesMapper.toEntity(createSeriesRequest)).thenReturn(series);
+        when(seriesRepository.save(series)).thenReturn(series);
+        Series result = seriesService.createSeries(createSeriesRequest);
+        assertEquals(series, result);
+        verify(seriesRepository).existsByTitle(createSeriesRequest.getTitle());
+        verify(seriesRepository).save(series);
+        verify(catalogueEventPublisher).publishSeriesCreated(series);
     }
 
     @Test
-    void getSeriesChapters_false_true_case() {
-        HashMap<String, String> allParams = new HashMap<String, String>();
-        allParams.put("size", "1");
-        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "publicationDate"));
-        when(chapterRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(chapter)));
-        ResponseEntity<?> responseEntity = seriesService.getSeriesChapters(allParams, series.getUuid());
-        Assertions.assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
-        verify(chapterRepository, Mockito.times(1)).findAll(any(Specification.class), any(Pageable.class));
-    }
-
-    @Test
-    void createSeries_false_true_case() {
-        when(seriesRepository.existsByTitle(series.getTitle())).thenReturn(false);
-        when(seriesMapper.toEntity(any(CreateSeriesRequest.class))).thenReturn(series);
-        when(payloadBuilderService.seriesCreatedEvent(any(Series.class), eq("SERIES_CREATED"), eq("library-app-catalogue-v1"), any(UUID.class))).thenReturn(createdEvent);
-        when(kafkaTemplate.send(anyString(), any(UUID.class), any())).thenReturn(null);
-        ResponseEntity<?> responseEntity = seriesService.createSeries(createSeriesRequest);
-        verify(payloadBuilderService, Mockito.times(1)).seriesCreatedEvent(any(Series.class), eq("SERIES_CREATED"), eq("library-app-catalogue-v1"), any(UUID.class));
-        verify(seriesRepository, Mockito.times(1)).existsByTitle(series.getTitle());
-        verify(seriesRepository).save(any(Series.class));
-        Assertions.assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
+    void shouldReturnSeriesChapters() {
+        Pageable pageable = PageRequest.of(0, 10);
+        ChapterSummaryDTO dto = Instancio.create(ChapterSummaryDTO.class);
+        when(chapterRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(new PageImpl<>(List.of(chapter)));
+        when(chapterMapper.toSummaryDto(chapter)).thenReturn(dto);
+        Page<ChapterSummaryDTO> result = seriesService.getSeriesChapters(series.getUuid(), pageable);
+        assertEquals(1, result.getContent().size());
+        verify(chapterRepository).findAll(any(Specification.class), eq(pageable));
+        verify(chapterMapper).toSummaryDto(chapter);
     }
 
     @Test
     void createSeries_false_false_case() {
         when(seriesRepository.existsByTitle(series.getTitle())).thenReturn(true);
-        ResponseStatusException exception = Assertions.assertThrows(ResponseStatusException.class, () -> {
+        SeriesAlreadyRegisteredException exception = assertThrows(SeriesAlreadyRegisteredException.class, () -> {
             seriesService.createSeries(createSeriesRequest);
         });
         verify(payloadBuilderService, Mockito.times(0)).seriesCreatedEvent(any(Series.class), eq("SERIES_CREATED"), eq("library-app-catalogue-v1"), any(UUID.class));
         verify(seriesRepository, Mockito.times(1)).existsByTitle(series.getTitle());
         verify(seriesRepository, Mockito.times(0)).save(any(Series.class));
-        Assertions.assertTrue(exception.getStatus().isError());
     }
 }
