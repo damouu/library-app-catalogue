@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.ChapterSummaryDTO;
 import com.example.demo.dto.CreateSeriesRequest;
-import com.example.demo.dto.SeriesCreatedEvent;
+import com.example.demo.exception.SeriesAlreadyRegisteredException;
+import com.example.demo.mapper.ChapterMapper;
 import com.example.demo.mapper.SeriesMapper;
 import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
@@ -12,20 +14,19 @@ import com.example.demo.spec.SeriesSpecification;
 import com.example.demo.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * The type Series service.
+ */
 @Service
 @RequiredArgsConstructor
 public class SeriesService {
@@ -36,14 +37,16 @@ public class SeriesService {
 
     private final SeriesMapper seriesMapper;
 
-    private final KafkaTemplate<UUID, Object> KafkaTemplate;
+    private final ChapterMapper chapterMapper;
 
-    private final KafkaPayloadBuilderService payloadBuilderService;
+    private final CatalogueEventPublisher catalogueEventPublisher;
 
 
     /**
-     * @param allParams
-     * @return
+     * Gets series.
+     *
+     * @param allParams the all params
+     * @return series
      */
     public ResponseEntity<Page<Series>> getSeries(Map allParams) {
         Pageable pageRequest = PaginationUtil.extractPage(allParams);
@@ -53,41 +56,32 @@ public class SeriesService {
     }
 
     /**
-     * @param allParams
-     * @param seriesUUID
-     * @return
+     * Gets series chapters.
+     *
+     * @param allParams  the all params
+     * @param seriesUUID the series uuid
+     * @return series chapters
      */
-    public ResponseEntity<Page<Chapter>> getSeriesChapters(Map allParams, UUID seriesUUID) {
-        PageRequest pageRequest = (PageRequest) PaginationUtil.extractPage(allParams);
-        Page<Chapter> chapters;
-        boolean hasPageParam = allParams.containsKey("page");
-        boolean hasSizeParam = allParams.containsKey("size");
-        Optional<Series> series = seriesRepository.findByUuidAndDeletedAtIsNull(seriesUUID);
-        if (hasPageParam && hasSizeParam) {
-            chapters = chapterRepository.findBySeriesUuid(seriesUUID, pageRequest);
-        } else {
-            Specification<Chapter> baseSpecification = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.and(criteriaBuilder.and(criteriaBuilder.equal(root.get("series"), series.get()), criteriaBuilder.isNull(root.get("deletedAT"))));
-            Specification<Chapter> chapterSpecification = ChapterSpecification.filterChapter(allParams);
-            Specification<Chapter> finalSpec = baseSpecification.and(chapterSpecification);
-            chapters = chapterRepository.findAll(finalSpec, pageRequest);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(chapters);
+    public Page<ChapterSummaryDTO> getSeriesChapters(UUID seriesUUID, Pageable pageable) {
+        Specification<Chapter> specification = ChapterSpecification.belongsToSeries(seriesUUID).and(ChapterSpecification.notDeleted());
+        return chapterRepository.findAll(specification, pageable).map(chapterMapper::toSummaryDto);
     }
 
+
     /**
-     * @param request
-     * @return
+     * Create series series.
+     *
+     * @param seriesRequest CreateSeriesRequest
+     * @return the series
      */
     @Transactional
-    public ResponseEntity<String> createSeries(CreateSeriesRequest request) {
-        if (seriesRepository.existsByTitle(request.getTitle())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "このシリーズは既に登録されています。");
+    public Series createSeries(CreateSeriesRequest seriesRequest) {
+        if (seriesRepository.existsByTitle(seriesRequest.getTitle())) {
+            throw new SeriesAlreadyRegisteredException(seriesRequest);
         }
-        Series series = seriesMapper.toEntity(request);
-        UUID eventUUID = UUID.randomUUID();
-        SeriesCreatedEvent createdEvent = payloadBuilderService.seriesCreatedEvent(series, "SERIES_CREATED", "library-app-catalogue-v1", eventUUID);
-        seriesRepository.save(series);
-        KafkaTemplate.send("library.catalog.v1", eventUUID, createdEvent);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdEvent.getData().getSeries_uuid().toString());
+        Series series = seriesMapper.toEntity(seriesRequest);
+        Series seriesSaved = seriesRepository.save(series);
+        catalogueEventPublisher.publishSeriesCreated(seriesSaved);
+        return seriesSaved;
     }
 }
