@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class ChapterSpecification {
 
@@ -55,5 +56,13 @@ public class ChapterSpecification {
 
     private static String likePattern(String value) {
         return "%" + value.toLowerCase() + "%";
+    }
+
+    public static Specification<Chapter> belongsToSeries(UUID seriesUUID) {
+        return (root, query, cb) -> cb.equal(root.get("series").get("uuid"), seriesUUID);
+    }
+
+    public static Specification<Chapter> notDeleted() {
+        return (root, query, cb) -> cb.isNull(root.get("deletedAt"));
     }
 }
