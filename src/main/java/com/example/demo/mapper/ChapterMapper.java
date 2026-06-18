@@ -1,6 +1,7 @@
 package com.example.demo.mapper;
 
 import com.example.demo.dto.ChapterCreatedEventData;
+import com.example.demo.dto.ChapterSummaryDTO;
 import com.example.demo.dto.CreateChapterRequest;
 import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
@@ -38,6 +39,13 @@ public class ChapterMapper {
                 .summary(request.getSummary())
                 .publicationDate(request.getPublication_date())
                 .series(series)
+                .build();
+    }
+
+    public ChapterSummaryDTO toSummaryDto(Chapter chapter) {
+        return ChapterSummaryDTO.builder()
+                .title(chapter.getTitle())
+                .genre(chapter.getSeries().getGenre())
                 .build();
     }
 }
