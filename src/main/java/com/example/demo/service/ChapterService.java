@@ -39,7 +39,7 @@ public class ChapterService {
 
     private final ChapterMapper chapterMapper;
 
-    private final ChapterEventPublisher chapterEventPublisher;
+    private final CatalogueEventPublisher catalogueEventPublisher;
 
 
     /**
@@ -73,8 +73,8 @@ public class ChapterService {
      * 登録されている巻を検索する。無い場合例外を発生されます。
      *
      * @param chapterUUID the chapter uuid
-     * @exception ChapterNotFoundException ChapterNotFoundException
      * @return the chapter uuid
+     * @throws ChapterNotFoundException ChapterNotFoundException
      */
     public Chapter getChapterUUID(UUID chapterUUID) {
         return chapterRepository.findByUuidAndDeletedAtIsNull(chapterUUID).orElseThrow(() -> new ChapterNotFoundException(chapterUUID));
@@ -96,7 +96,7 @@ public class ChapterService {
         }
         Chapter chapter = chapterMapper.toEntity(chapterRequest, series);
         Chapter savedChapter = chapterRepository.save(chapter);
-        chapterEventPublisher.publishChapterCreated(savedChapter, chapterRequest.getInitial_copies_count());
+        catalogueEventPublisher.publishChapterCreated(savedChapter, chapterRequest.getInitial_copies_count());
         return savedChapter;
     }
 
