@@ -1,11 +1,12 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.ChapterSummaryDTO;
 import com.example.demo.dto.CreateSeriesRequest;
-import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
 import com.example.demo.service.SeriesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -28,14 +29,13 @@ public class SeriesController {
     }
 
     @GetMapping(path = "/{seriesUUID}/chapters", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Page<Chapter>> getSeriesChapters(@RequestParam Map<String, ?> allParams, @PathVariable UUID seriesUUID) {
-        return seriesService.getSeriesChapters(allParams, seriesUUID);
+    public Page<ChapterSummaryDTO> getSeriesChapters(Pageable pageable, @PathVariable UUID seriesUUID) {
+        return seriesService.getSeriesChapters(seriesUUID, pageable);
     }
 
     @PostMapping
-    public ResponseEntity<String> createSeries(@RequestBody CreateSeriesRequest request) {
-        return seriesService.createSeries(request);
-
+    public Series createSeries(@RequestBody CreateSeriesRequest seriesRequest) {
+        return seriesService.createSeries(seriesRequest);
     }
 
 }
