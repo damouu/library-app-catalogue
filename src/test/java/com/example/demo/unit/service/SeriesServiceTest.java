@@ -1,8 +1,6 @@
 package com.example.demo.unit.service;
 
-import com.example.demo.dto.ChapterSummaryDTO;
-import com.example.demo.dto.CreateSeriesRequest;
-import com.example.demo.dto.SeriesCreatedEvent;
+import com.example.demo.dto.*;
 import com.example.demo.exception.SeriesAlreadyRegisteredException;
 import com.example.demo.mapper.ChapterMapper;
 import com.example.demo.mapper.SeriesMapper;
@@ -14,7 +12,6 @@ import com.example.demo.service.CatalogueEventPublisher;
 import com.example.demo.service.KafkaPayloadBuilderService;
 import com.example.demo.service.SeriesService;
 import org.instancio.Instancio;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,9 +21,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -74,24 +69,25 @@ class SeriesServiceTest {
         series = Instancio.of(Series.class).set(field("title"), "jojo").create();
         chapter = Instancio.create(Chapter.class);
         createdEvent = Instancio.create(SeriesCreatedEvent.class);
-        createSeriesRequest = Instancio.of(CreateSeriesRequest.class).set(field(CreateSeriesRequest::getTitle), series.getTitle()).set(field(CreateSeriesRequest::getGenre), series.getGenre()).set(field(CreateSeriesRequest::getAuthor), series.getAuthor()).create();
+        createSeriesRequest = Instancio.of(CreateSeriesRequest.class).set(field(CreateSeriesRequest::title), series.getTitle()).set(field(CreateSeriesRequest::genre), series.getGenre()).set(field(CreateSeriesRequest::author), series.getAuthor()).create();
     }
 
     @Test
     void getSeries() {
-        HashMap<String, String> allParams = new HashMap<String, String>();
-        allParams.put("", "");
+        SeriesFilterDTO filter = new SeriesFilterDTO("Naruto", null, null, null, null);
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "publicationDate"));
-        Specification<Series> spec = (root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%dede%");
+        SeriesSummaryDTO dto = new SeriesSummaryDTO(UUID.randomUUID(), "Naruto", "Action", "cover.jpg", "dede", "dede", "dede");
         when(seriesRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(new PageImpl<>(List.of(series)));
-        ResponseEntity<?> responseEntity = seriesService.getSeries(allParams);
-        Assertions.assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
-        verify(seriesRepository, Mockito.times(1)).findAll(any(Specification.class), eq(pageable));
+        when(seriesMapper.toSummaryDto(series)).thenReturn(dto);
+        Page<SeriesSummaryDTO> result = seriesService.getSeries(filter, pageable);
+        assertEquals(1, result.getTotalElements());
+        verify(seriesRepository).findAll(any(Specification.class), eq(pageable));
+        verify(seriesMapper).toSummaryDto(series);
     }
 
     @Test
     void shouldThrowWhenSeriesAlreadyExists() {
-        when(seriesRepository.existsByTitle(createSeriesRequest.getTitle())).thenReturn(true);
+        when(seriesRepository.existsByTitle(createSeriesRequest.title())).thenReturn(true);
         assertThrows(SeriesAlreadyRegisteredException.class, () -> seriesService.createSeries(createSeriesRequest));
         verify(seriesRepository, never()).save(any());
         verify(catalogueEventPublisher, never()).publishSeriesCreated(any());
@@ -99,12 +95,12 @@ class SeriesServiceTest {
 
     @Test
     void shouldCreateSeries() {
-        when(seriesRepository.existsByTitle(createSeriesRequest.getTitle())).thenReturn(false);
+        when(seriesRepository.existsByTitle(createSeriesRequest.title())).thenReturn(false);
         when(seriesMapper.toEntity(createSeriesRequest)).thenReturn(series);
         when(seriesRepository.save(series)).thenReturn(series);
         Series result = seriesService.createSeries(createSeriesRequest);
         assertEquals(series, result);
-        verify(seriesRepository).existsByTitle(createSeriesRequest.getTitle());
+        verify(seriesRepository).existsByTitle(createSeriesRequest.title());
         verify(seriesRepository).save(series);
         verify(catalogueEventPublisher).publishSeriesCreated(series);
     }
