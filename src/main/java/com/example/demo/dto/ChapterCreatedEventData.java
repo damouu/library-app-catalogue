@@ -1,34 +1,18 @@
 package com.example.demo.dto;
 
-import lombok.*;
-
 import java.util.UUID;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class ChapterCreatedEventData {
 
-    private UUID chapter_uuid;
-
-    private UUID series_uuid;
-    
-    private String title;
-
-    private String second_title;
-
-    private Integer total_pages;
-
-    private Integer chapter_number;
-
-    private String summary;
-
-    private String cover_artwork_url;
-
-    private String publication_date;
-
-    private Integer initial_copies_count;
-
+public record ChapterCreatedEventData(
+        UUID chapter_uuid,
+        UUID series_uuid,
+        String title,
+        String second_title,
+        Integer total_pages,
+        Integer chapter_number,
+        String summary,
+        String cover_artwork_url,
+        String publication_date,
+        Integer initial_copies_count
+) {
 }
