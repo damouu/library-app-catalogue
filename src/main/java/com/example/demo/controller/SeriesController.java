@@ -2,17 +2,17 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.ChapterSummaryDTO;
 import com.example.demo.dto.CreateSeriesRequest;
+import com.example.demo.dto.SeriesFilterDTO;
+import com.example.demo.dto.SeriesSummaryDTO;
 import com.example.demo.model.Series;
 import com.example.demo.service.SeriesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.UUID;
 
 @Validated
@@ -24,8 +24,8 @@ public class SeriesController {
     private final SeriesService seriesService;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Page<Series>> getSeries(@RequestParam Map<String, ?> allParams) {
-        return seriesService.getSeries(allParams);
+    public Page<SeriesSummaryDTO> getSeries(SeriesFilterDTO filter, Pageable pageable) {
+        return seriesService.getSeries(filter, pageable);
     }
 
     @GetMapping(path = "/{seriesUUID}/chapters", produces = MediaType.APPLICATION_JSON_VALUE)

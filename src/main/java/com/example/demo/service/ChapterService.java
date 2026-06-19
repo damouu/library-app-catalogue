@@ -90,13 +90,13 @@ public class ChapterService {
      */
     @Transactional
     public Chapter createChapter(CreateChapterRequest chapterRequest) {
-        Series series = (Series) seriesRepository.findByUuid((chapterRequest.getSeries_uuid())).orElseThrow(() -> new SeriesNotFoundException(chapterRequest.getSeries_uuid()));
-        if (chapterRepository.existsBySeries_UuidAndChapterNumber(chapterRequest.getSeries_uuid(), chapterRequest.getChapter_number())) {
-            throw new ChapterAlreadyRegisteredException(chapterRequest.getChapter_number());
+        Series series = (Series) seriesRepository.findByUuid((chapterRequest.series_uuid())).orElseThrow(() -> new SeriesNotFoundException(chapterRequest.series_uuid()));
+        if (chapterRepository.existsBySeries_UuidAndChapterNumber(chapterRequest.series_uuid(), chapterRequest.chapter_number())) {
+            throw new ChapterAlreadyRegisteredException(chapterRequest.chapter_number());
         }
         Chapter chapter = chapterMapper.toEntity(chapterRequest, series);
         Chapter savedChapter = chapterRepository.save(chapter);
-        catalogueEventPublisher.publishChapterCreated(savedChapter, chapterRequest.getInitial_copies_count());
+        catalogueEventPublisher.publishChapterCreated(savedChapter, chapterRequest.initial_copies_count());
         return savedChapter;
     }
 

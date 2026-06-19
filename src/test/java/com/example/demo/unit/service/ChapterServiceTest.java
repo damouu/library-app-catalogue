@@ -133,21 +133,21 @@ class ChapterServiceTest {
         Series series = Instancio.create(Series.class);
         Chapter savedChapter = Instancio.create(Chapter.class);
         when(chapterMapper.toEntity(request, series)).thenReturn(chapter);
-        when(seriesRepository.findByUuid(request.getSeries_uuid())).thenReturn(Optional.of(series));
-        when(chapterRepository.existsBySeries_UuidAndChapterNumber(request.getSeries_uuid(), request.getChapter_number())).thenReturn(false);
+        when(seriesRepository.findByUuid(request.series_uuid())).thenReturn(Optional.of(series));
+        when(chapterRepository.existsBySeries_UuidAndChapterNumber(request.series_uuid(), request.chapter_number())).thenReturn(false);
         when(chapterRepository.save(any(Chapter.class))).thenReturn(savedChapter);
         Chapter result = chapterService.createChapter(request);
         assertEquals(savedChapter, result);
         verify(chapterRepository).save(any(Chapter.class));
-        verify(catalogueEventPublisher).publishChapterCreated(savedChapter, request.getInitial_copies_count());
+        verify(catalogueEventPublisher).publishChapterCreated(savedChapter, request.initial_copies_count());
     }
 
     @Test
     void createChapter_seriesNotFound() {
         CreateChapterRequest request = Instancio.create(CreateChapterRequest.class);
-        when(seriesRepository.findByUuid(request.getSeries_uuid())).thenReturn(Optional.empty());
+        when(seriesRepository.findByUuid(request.series_uuid())).thenReturn(Optional.empty());
         SeriesNotFoundException exception = assertThrows(SeriesNotFoundException.class, () -> chapterService.createChapter(request));
-        assertEquals("Could not find series with UUID" + request.getSeries_uuid(), exception.getMessage());
+        assertEquals("Could not find series with UUID" + request.series_uuid(), exception.getMessage());
         verify(chapterRepository, never()).save(any());
     }
 
@@ -155,10 +155,10 @@ class ChapterServiceTest {
     void createChapter_alreadyExists() {
         CreateChapterRequest request = Instancio.create(CreateChapterRequest.class);
         Series series = Instancio.create(Series.class);
-        when(seriesRepository.findByUuid(request.getSeries_uuid())).thenReturn(Optional.of(series));
-        when(chapterRepository.existsBySeries_UuidAndChapterNumber(request.getSeries_uuid(), request.getChapter_number())).thenReturn(true);
+        when(seriesRepository.findByUuid(request.series_uuid())).thenReturn(Optional.of(series));
+        when(chapterRepository.existsBySeries_UuidAndChapterNumber(request.series_uuid(), request.chapter_number())).thenReturn(true);
         ChapterAlreadyRegisteredException exception = assertThrows(ChapterAlreadyRegisteredException.class, () -> chapterService.createChapter(request));
-        assertEquals("この巻は既に登録されています " + request.getChapter_number(), exception.getMessage());
+        assertEquals("この巻は既に登録されています " + request.chapter_number(), exception.getMessage());
         verify(chapterRepository, never()).save(any());
         verify(kafkaTemplate, never()).send(anyString(), any(), any());
     }
