@@ -2,6 +2,8 @@ package com.example.demo.service;
 
 import com.example.demo.dto.ChapterSummaryDTO;
 import com.example.demo.dto.CreateSeriesRequest;
+import com.example.demo.dto.SeriesFilterDTO;
+import com.example.demo.dto.SeriesSummaryDTO;
 import com.example.demo.exception.SeriesAlreadyRegisteredException;
 import com.example.demo.mapper.ChapterMapper;
 import com.example.demo.mapper.SeriesMapper;
@@ -11,17 +13,13 @@ import com.example.demo.repository.ChapterRepository;
 import com.example.demo.repository.SeriesRepository;
 import com.example.demo.spec.ChapterSpecification;
 import com.example.demo.spec.SeriesSpecification;
-import com.example.demo.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -45,20 +43,19 @@ public class SeriesService {
     /**
      * Gets series.
      *
-     * @param allParams the all params
-     * @return series
+     * @param filter   the all params
+     * @param pageable the all params
+     * @return SeriesSummaryDTO
      */
-    public ResponseEntity<Page<Series>> getSeries(Map allParams) {
-        Pageable pageRequest = PaginationUtil.extractPage(allParams);
-        Specification<Series> specification = SeriesSpecification.filterSeries(allParams);
-        final Page<Series> series = seriesRepository.findAll(specification, pageRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(series);
+    public Page<SeriesSummaryDTO> getSeries(SeriesFilterDTO filter, Pageable pageable) {
+        Specification<Series> specification = SeriesSpecification.filterSeries(filter);
+        return seriesRepository.findAll(specification, pageable).map(seriesMapper::toSummaryDto);
     }
 
     /**
      * Gets series chapters.
      *
-     * @param allParams  the all params
+     * @param pageable   the all params
      * @param seriesUUID the series uuid
      * @return series chapters
      */
@@ -71,12 +68,13 @@ public class SeriesService {
     /**
      * Create series series.
      *
-     * @param seriesRequest CreateSeriesRequest
-     * @return the series
+     * @param seriesRequest seriesRequest
+     * @return a series
+     * @throws SeriesAlreadyRegisteredException SeriesAlreadyRegisteredException
      */
     @Transactional
     public Series createSeries(CreateSeriesRequest seriesRequest) {
-        if (seriesRepository.existsByTitle(seriesRequest.getTitle())) {
+        if (seriesRepository.existsByTitle(seriesRequest.title())) {
             throw new SeriesAlreadyRegisteredException(seriesRequest);
         }
         Series series = seriesMapper.toEntity(seriesRequest);
