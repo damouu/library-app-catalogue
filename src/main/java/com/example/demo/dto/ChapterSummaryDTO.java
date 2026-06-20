@@ -11,6 +11,7 @@ public record ChapterSummaryDTO(
         String genre,
         String summary,
         String publicationDate,
-        String coverArtworkUrl
+        String coverArtworkUrl,
+        UUID seriesUUID
 ) {
 }

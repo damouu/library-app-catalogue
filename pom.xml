@@ -232,7 +232,7 @@
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>TOTALCOUNT</value>
-                                            <maximum>8</maximum>
+                                            <maximum>7</maximum>
                                         </limit>
                                     </limits>
                                 </rule>
