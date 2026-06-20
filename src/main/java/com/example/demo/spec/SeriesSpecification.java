@@ -8,12 +8,7 @@ import org.springframework.data.jpa.domain.Specification;
 public class SeriesSpecification {
 
     public static Specification<Series> filterSeries(SeriesFilterDTO filter) {
-
-        return Specification.where(optionalContains("title", filter.title()))
-                .and(optionalContains("author", filter.author()))
-                .and(optionalContains("genre", filter.genre()))
-                .and(optionalContains("illustrator", filter.illustrator()))
-                .and(optionalContains("publisher", filter.publisher()));
+        return Specification.where(optionalContains("title", filter.title())).and(optionalContains("author", filter.author())).and(optionalContains("genre", filter.genre())).and(optionalContains("illustrator", filter.illustrator())).and(optionalContains("publisher", filter.publisher()));
     }
 
     private static Specification<Series> optionalContains(String field, String value) {
@@ -21,7 +16,6 @@ public class SeriesSpecification {
         if (StringUtils.isBlank(value)) {
             return null;
         }
-        
         return contains(field, value);
     }
 
