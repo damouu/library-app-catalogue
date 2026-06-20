@@ -1,24 +1,22 @@
 package com.example.demo.integration.controller;
 
 import com.example.demo.controller.ChapterController;
-import com.example.demo.model.Chapter;
+import com.example.demo.dto.ChapterSummaryDTO;
 import com.example.demo.service.ChapterService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -35,41 +33,18 @@ class ChapterControllerTest {
     @Test
     @DisplayName("GET /public/chapters - Should return a list of chapters")
     void testGetChapters() throws Exception {
-        Chapter mockChapter = Chapter.builder()
-                .title("Naruto Uzumaki")
-                .chapterNumber(1)
-                .build();
-
-        doReturn(ResponseEntity.ok(List.of(mockChapter)))
-                .when(chapterService).getChapters(any());
-
-        mockMvc.perform(get("/public/chapters")
-                        .param("title", "Naruto")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()) // Expect HTTP 200
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].title").value("Naruto Uzumaki"))
-                .andExpect(jsonPath("$[0].chapterNumber").value(1));
+        ChapterSummaryDTO dto = new ChapterSummaryDTO(UUID.randomUUID(), "Naruto", "Action", 1, 10, "dede", "dede", null, "dede", UUID.randomUUID());
+        Page<ChapterSummaryDTO> page = new PageImpl<>(List.of(dto));
+        when(chapterService.getChapters(any(), any())).thenReturn(page);
+        mockMvc.perform(get("/public/chapters").param("title", "Naruto").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()) // Expect HTTP 200
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$.content[0].title").value("Naruto")).andExpect(jsonPath("$.content[0].chapterNumber").value(1));
     }
 
     @Test
     @DisplayName("GET /public/chapters/{uuid} - Should return a specific chapter")
     void testGetChapterByUUID() throws Exception {
-        UUID targetUuid = UUID.randomUUID();
-        Chapter mockChapter = Chapter.builder()
-                .uuid(targetUuid)
-                .title("The Worst Generation")
-                .publicationDate(LocalDate.of(2008, 10, 6))
-                .build();
-
-        when(chapterService.getChapterUUID(eq(targetUuid)))
-                .thenReturn(mockChapter);
-
-        mockMvc.perform(get("/public/chapters/{chapterUUID}", targetUuid)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.uuid").value(targetUuid.toString()))
-                .andExpect(jsonPath("$.title").value("The Worst Generation"))
-                .andExpect(jsonPath("$.publicationDate").value("2008-10-06"));
+        ChapterSummaryDTO dto = new ChapterSummaryDTO(UUID.randomUUID(), "Naruto", "Action", 1, 10, "dede", "dede", "2008-10-06", "dede", UUID.randomUUID());
+        when(chapterService.getChapterUUID(dto.uuid())).thenReturn(dto);
+        mockMvc.perform(get("/public/chapters/{chapterUUID}", dto.uuid()).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath("$.uuid").value(dto.uuid().toString())).andExpect(jsonPath("$.title").value(dto.title())).andExpect(jsonPath("$.publicationDate").value(dto.publicationDate()));
     }
 }
