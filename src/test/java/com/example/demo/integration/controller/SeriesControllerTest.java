@@ -49,8 +49,8 @@ class SeriesControllerTest {
     @DisplayName("GET /public/series/{uuid}/chapters - Should return paginated chapters")
     void testGetSeriesChapters() throws Exception {
         UUID seriesUUID = UUID.randomUUID();
-        ChapterSummaryDTO dto1 = new ChapterSummaryDTO(UUID.randomUUID(), "Chapter 1", "Chapter 1", 1, 1, "dede", "dede", "dede", "dede");
-        ChapterSummaryDTO dto2 = new ChapterSummaryDTO(UUID.randomUUID(), "Chapter 2", "Chapter 2", 2, 2, "dede", "dede", "dede", "dede");
+        ChapterSummaryDTO dto1 = new ChapterSummaryDTO(UUID.randomUUID(), "Chapter 1", "Chapter 1", 1, 1, "dede", "dede", "dede", "dede", UUID.randomUUID());
+        ChapterSummaryDTO dto2 = new ChapterSummaryDTO(UUID.randomUUID(), "Chapter 2", "Chapter 2", 2, 2, "dede", "dede", "dede", "dede", UUID.randomUUID());
         Page<ChapterSummaryDTO> page = new PageImpl<>(List.of(dto1, dto2), PageRequest.of(0, 10), 2);
         when(seriesService.getSeriesChapters(eq(seriesUUID), any(Pageable.class))).thenReturn(page);
         mockMvc.perform(get("/public/series/{seriesUUID}/chapters", seriesUUID).param("page", "0").param("size", "10").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath("$.content[0].title").value("Chapter 1")).andExpect(jsonPath("$.content[1].title").value("Chapter 2")).andExpect(jsonPath("$.totalElements").value(2)).andExpect(jsonPath("$.size").value(10)).andExpect(jsonPath("$.number").value(0));
