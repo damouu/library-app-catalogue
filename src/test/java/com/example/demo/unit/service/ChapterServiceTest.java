@@ -1,5 +1,7 @@
 package com.example.demo.unit.service;
 
+import com.example.demo.dto.ChapterFilterDTO;
+import com.example.demo.dto.ChapterSummaryDTO;
 import com.example.demo.dto.CreateChapterRequest;
 import com.example.demo.exception.ChapterAlreadyRegisteredException;
 import com.example.demo.exception.ChapterNotFoundException;
@@ -12,7 +14,6 @@ import com.example.demo.repository.SeriesRepository;
 import com.example.demo.service.CatalogueEventPublisher;
 import com.example.demo.service.ChapterService;
 import org.instancio.Instancio;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,15 +21,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -70,49 +66,32 @@ class ChapterServiceTest {
 
     @Test
     void getChapters() {
-        HashMap<String, String> allParams = new HashMap<String, String>();
-        allParams.put("", "");
+        ChapterFilterDTO filter = new ChapterFilterDTO("dede", null, null, null, null);
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "publicationDate"));
-        Specification<Chapter> spec = (root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%dede%");
         when(chapterRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(new PageImpl<>(List.of(chapter)));
-        ResponseEntity<?> responseEntity = chapterService.getChapters(allParams);
-        Assertions.assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
-        Mockito.verify(chapterRepository, Mockito.times(1)).findAll(any(Specification.class), eq(pageable));
+        Page<ChapterSummaryDTO> result = chapterService.getChapters(filter, pageable);
+        assertEquals(1, result.getTotalElements());
+        verify(chapterRepository).findAll(any(Specification.class), eq(pageable));
     }
 
     @Test
     void getChapters_Case_Recent() {
-        HashMap<String, String> allParams = new HashMap<String, String>();
-        allParams.put("type", "recent");
+        ChapterFilterDTO filter = new ChapterFilterDTO("recent", null, null, null, null);
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "publicationDate"));
-        Specification<Chapter> spec = (root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%dede%");
         when(chapterRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(new PageImpl<>(List.of(chapter)));
-        ResponseEntity<?> responseEntity = chapterService.getChapters(allParams);
-        Assertions.assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
-        Mockito.verify(chapterRepository, Mockito.times(1)).findAll(any(Specification.class), eq(pageable));
-    }
-
-    @Test
-    void getChapters_throw_default() {
-        HashMap<String, String> allParams = new HashMap<String, String>();
-        allParams.put("type", "popular");
-        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "publicationDate"));
-        Specification<Chapter> spec = (root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%dede%");
-        lenient().when(chapterRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(chapter)));
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            chapterService.getChapters(allParams);
-        }, "Unexpected value:" + allParams.get("type"));
-        assertEquals(IllegalStateException.class, exception.getClass());
-        assertEquals("Unexpected value: popular", exception.getMessage());
-        verifyNoInteractions(chapterRepository);
+        Page<ChapterSummaryDTO> result = chapterService.getChapters(filter, pageable);
+        assertEquals(1, result.getTotalElements());
+        verify(chapterRepository, times(1)).findAll(any(Specification.class), eq(pageable));
     }
 
 
     @Test
     void getChapterUUID() {
+        ChapterSummaryDTO dto = new ChapterSummaryDTO(chapter.getUuid(), "Naruto", "Action", 1, 10, "dede", "dede", "2008-10-06", "dede", UUID.randomUUID());
         when(chapterRepository.findByUuidAndDeletedAtIsNull(chapter.getUuid())).thenReturn(Optional.ofNullable(chapter));
-        Chapter responseEntity = chapterService.getChapterUUID(chapter.getUuid());
-        assertEquals(responseEntity.getUuid(), chapter.getUuid());
+        when(chapterMapper.toSummaryDto(chapter)).thenReturn(dto);
+        var chapterSummaryDTO = chapterService.getChapterUUID(chapter.getUuid());
+        assertEquals(chapterSummaryDTO.uuid(), chapter.getUuid());
         Mockito.verify(chapterRepository, Mockito.times(1)).findByUuidAndDeletedAtIsNull(chapter.getUuid());
     }
 
