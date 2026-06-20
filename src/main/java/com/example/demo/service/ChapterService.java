@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.ChapterFilterDTO;
+import com.example.demo.dto.ChapterSummaryDTO;
 import com.example.demo.dto.CreateChapterRequest;
 import com.example.demo.exception.ChapterAlreadyRegisteredException;
 import com.example.demo.exception.ChapterNotFoundException;
@@ -10,20 +12,15 @@ import com.example.demo.model.Series;
 import com.example.demo.repository.ChapterRepository;
 import com.example.demo.repository.SeriesRepository;
 import com.example.demo.spec.ChapterSpecification;
-import com.example.demo.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -45,39 +42,29 @@ public class ChapterService {
     /**
      * Gets chapters.
      *
-     * @param allParams the all params
-     * @return chapters
+     * @param filter   dede
+     * @param pageable dede
+     * @return ChapterSummaryDTO
      */
-    public ResponseEntity<?> getChapters(Map allParams) {
+    public Page<ChapterSummaryDTO> getChapters(ChapterFilterDTO filter, Pageable pageable) {
         LocalDate startOfWeek = LocalDate.now().with(DayOfWeek.MONDAY);
         LocalDate endOfWeek = LocalDate.now().with(DayOfWeek.SUNDAY);
-        Pageable pageable = PaginationUtil.extractPage(allParams);
-        String typeValue = Optional.ofNullable(allParams.get("type")).map(Object::toString).orElse(null);
-        Page<Chapter> chapters;
-        switch (typeValue) {
-            case ("recent"):
-                Specification<Chapter> specification = ChapterSpecification.publishedBetween(startOfWeek, endOfWeek);
-                chapters = chapterRepository.findAll(specification, pageable);
-                return ResponseEntity.status(HttpStatus.OK).body(chapters);
-            case null:
-                specification = ChapterSpecification.filterChapter(allParams);
-                chapters = chapterRepository.findAll(specification, pageable);
-                return ResponseEntity.status(HttpStatus.OK).body(chapters);
-            default:
-                throw new IllegalStateException("Unexpected value: " + typeValue);
-        }
+        Specification<Chapter> specification = "recent".equals(filter.type()) ? ChapterSpecification.publishedBetween(startOfWeek, endOfWeek) : ChapterSpecification.filterChapter(filter);
+        return chapterRepository.findAll(specification, pageable).map(chapterMapper::toSummaryDto);
     }
 
 
     /**
+     * s
      * 登録されている巻を検索する。無い場合例外を発生されます。
      *
      * @param chapterUUID the chapter uuid
      * @return the chapter uuid
      * @throws ChapterNotFoundException ChapterNotFoundException
      */
-    public Chapter getChapterUUID(UUID chapterUUID) {
-        return chapterRepository.findByUuidAndDeletedAtIsNull(chapterUUID).orElseThrow(() -> new ChapterNotFoundException(chapterUUID));
+    public ChapterSummaryDTO getChapterUUID(UUID chapterUUID) {
+        Chapter chapter = chapterRepository.findByUuidAndDeletedAtIsNull(chapterUUID).orElseThrow(() -> new ChapterNotFoundException(chapterUUID));
+        return chapterMapper.toSummaryDto(chapter);
     }
 
     /**
