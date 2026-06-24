@@ -76,7 +76,7 @@ public class SeriesService {
     @Transactional
     public Series createSeries(CreateSeriesRequest seriesRequest) {
         if (seriesRepository.existsByTitle(seriesRequest.title())) {
-            throw new SeriesAlreadyRegisteredException(seriesRequest);
+            throw new SeriesAlreadyRegisteredException(seriesRequest.title());
         }
         Series series = seriesMapper.toEntity(seriesRequest);
         Series seriesSaved = seriesRepository.save(series);
