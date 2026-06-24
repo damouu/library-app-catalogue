@@ -4,6 +4,7 @@ import com.example.demo.dto.ChapterSummaryDTO;
 import com.example.demo.dto.CreateSeriesRequest;
 import com.example.demo.dto.SeriesFilterDTO;
 import com.example.demo.dto.SeriesSummaryDTO;
+import com.example.demo.event.publish.CatalogueEventPort;
 import com.example.demo.exception.SeriesAlreadyRegisteredException;
 import com.example.demo.mapper.ChapterMapper;
 import com.example.demo.mapper.SeriesMapper;
@@ -37,14 +38,14 @@ public class SeriesService {
 
     private final ChapterMapper chapterMapper;
 
-    private final CatalogueEventPublisher catalogueEventPublisher;
+    private final CatalogueEventPort catalogueEventPort;
 
 
     /**
      * Gets series.
      *
-     * @param filter   the all params
-     * @param pageable the all params
+     * @param filter filter
+     * @param pageable pageable
      * @return SeriesSummaryDTO
      */
     public Page<SeriesSummaryDTO> getSeries(SeriesFilterDTO filter, Pageable pageable) {
@@ -55,8 +56,8 @@ public class SeriesService {
     /**
      * Gets series chapters.
      *
-     * @param pageable   the all params
-     * @param seriesUUID the series uuid
+     * @param pageable pageable
+     * @param seriesUUID seriesUUID
      * @return series chapters
      */
     public Page<ChapterSummaryDTO> getSeriesChapters(UUID seriesUUID, Pageable pageable) {
@@ -79,7 +80,7 @@ public class SeriesService {
         }
         Series series = seriesMapper.toEntity(seriesRequest);
         Series seriesSaved = seriesRepository.save(series);
-        catalogueEventPublisher.publishSeriesCreated(seriesSaved);
+        catalogueEventPort.publishSeriesCreated(seriesSaved);
         return seriesSaved;
     }
 }

@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.ChapterFilterDTO;
 import com.example.demo.dto.ChapterSummaryDTO;
 import com.example.demo.dto.CreateChapterRequest;
+import com.example.demo.event.publish.CatalogueEventPort;
 import com.example.demo.exception.ChapterAlreadyRegisteredException;
 import com.example.demo.exception.ChapterNotFoundException;
 import com.example.demo.exception.SeriesNotFoundException;
@@ -36,14 +37,14 @@ public class ChapterService {
 
     private final ChapterMapper chapterMapper;
 
-    private final CatalogueEventPublisher catalogueEventPublisher;
+    private final CatalogueEventPort catalogueEventPort;
 
 
     /**
      * Gets chapters.
      *
-     * @param filter   dede
-     * @param pageable dede
+     * @param filter   filter
+     * @param pageable pageable
      * @return ChapterSummaryDTO
      */
     public Page<ChapterSummaryDTO> getChapters(ChapterFilterDTO filter, Pageable pageable) {
@@ -83,7 +84,7 @@ public class ChapterService {
         }
         Chapter chapter = chapterMapper.toEntity(chapterRequest, series);
         Chapter savedChapter = chapterRepository.save(chapter);
-        catalogueEventPublisher.publishChapterCreated(savedChapter, chapterRequest.initial_copies_count());
+        catalogueEventPort.publishChapterCreated(savedChapter, chapterRequest.initial_copies_count());
         return savedChapter;
     }
 

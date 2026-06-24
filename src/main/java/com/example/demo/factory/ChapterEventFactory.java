@@ -1,29 +1,21 @@
-package com.example.demo.service;
+package com.example.demo.factory;
 
-import com.example.demo.dto.*;
+import com.example.demo.dto.ChapterCreatedEvent;
+import com.example.demo.dto.ChapterCreatedEventData;
+import com.example.demo.dto.Metadata;
 import com.example.demo.mapper.ChapterMapper;
-import com.example.demo.mapper.SeriesMapper;
 import com.example.demo.model.Chapter;
-import com.example.demo.model.Series;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class KafkaPayloadBuilderService {
-
-    private final SeriesMapper seriesEventMapper;
+public class ChapterEventFactory {
 
     private final ChapterMapper chapterMapper;
-
-    public SeriesCreatedEvent seriesCreatedEvent(Series series, String eventType, String sourceService, UUID eventUUID) {
-        SeriesCreatedEventData eventData = seriesEventMapper.toEventData(series);
-        Metadata metadata = new Metadata(LocalDateTime.now().toString(), sourceService, eventType, eventUUID);
-        return new SeriesCreatedEvent(metadata, eventData);
-    }
 
     public ChapterCreatedEvent chapterCreatedEvent(Chapter chapter, String eventType, String sourceService, UUID eventUUID, Integer initial_copies_count) {
         ChapterCreatedEventData chapterCreatedEventData = chapterMapper.toEventData(chapter, initial_copies_count);

@@ -11,7 +11,7 @@ import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
 import com.example.demo.repository.ChapterRepository;
 import com.example.demo.repository.SeriesRepository;
-import com.example.demo.service.CatalogueEventPublisher;
+import com.example.demo.event.publish.CatalogueEventPublisher;
 import com.example.demo.service.ChapterService;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
