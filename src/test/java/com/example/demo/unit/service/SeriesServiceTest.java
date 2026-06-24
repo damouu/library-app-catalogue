@@ -1,15 +1,15 @@
 package com.example.demo.unit.service;
 
 import com.example.demo.dto.*;
+import com.example.demo.event.publish.CatalogueEventPublisher;
 import com.example.demo.exception.SeriesAlreadyRegisteredException;
+import com.example.demo.factory.SeriesEventFactory;
 import com.example.demo.mapper.ChapterMapper;
 import com.example.demo.mapper.SeriesMapper;
 import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
 import com.example.demo.repository.ChapterRepository;
 import com.example.demo.repository.SeriesRepository;
-import com.example.demo.service.CatalogueEventPublisher;
-import com.example.demo.service.KafkaPayloadBuilderService;
 import com.example.demo.service.SeriesService;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +42,8 @@ class SeriesServiceTest {
     private SeriesRepository seriesRepository;
 
     @Mock
-    private KafkaPayloadBuilderService payloadBuilderService;
+    private SeriesEventFactory seriesEventFactory;
+
 
     @Mock
     private CatalogueEventPublisher catalogueEventPublisher;
@@ -123,7 +124,7 @@ class SeriesServiceTest {
         SeriesAlreadyRegisteredException exception = assertThrows(SeriesAlreadyRegisteredException.class, () -> {
             seriesService.createSeries(createSeriesRequest);
         });
-        verify(payloadBuilderService, Mockito.times(0)).seriesCreatedEvent(any(Series.class), eq("SERIES_CREATED"), eq("library-app-catalogue-v1"), any(UUID.class));
+        verify(seriesEventFactory, Mockito.times(0)).seriesCreatedEvent(any(Series.class), eq("SERIES_CREATED"), eq("library-app-catalogue-v2"), any(UUID.class));
         verify(seriesRepository, Mockito.times(1)).existsByTitle(series.getTitle());
         verify(seriesRepository, Mockito.times(0)).save(any(Series.class));
     }
