@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -77,7 +78,7 @@ class SeriesServiceTest {
     void getSeries() {
         SeriesFilterDTO filter = new SeriesFilterDTO("Naruto", null, null, null, null);
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "publicationDate"));
-        SeriesSummaryDTO dto = new SeriesSummaryDTO(UUID.randomUUID(), "Naruto", "Action", "cover.jpg", "dede", "dede", "dede");
+        SeriesSummaryDTO dto = new SeriesSummaryDTO(UUID.randomUUID(), "Naruto", "Action", "cover.jpg", "dede", "dede", "dede", LocalDate.now(), LocalDate.now());
         when(seriesRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(new PageImpl<>(List.of(series)));
         when(seriesMapper.toSummaryDto(series)).thenReturn(dto);
         Page<SeriesSummaryDTO> result = seriesService.getSeries(filter, pageable);
