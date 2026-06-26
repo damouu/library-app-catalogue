@@ -22,6 +22,6 @@ public class ChapterMapper {
     }
 
     public ChapterSummaryDTO toSummaryDto(Chapter chapter) {
-        return new ChapterSummaryDTO(chapter.getUuid(), chapter.getTitle(), chapter.getSecondTitle(), chapter.getChapterNumber(), chapter.getTotalPages(), chapter.getSeries().getGenre(), chapter.getSummary(), chapter.getPublicationDate().toString(), chapter.getSeries().getCoverArtworkUrl(), chapter.getSeries().getUuid());
+        return new ChapterSummaryDTO(chapter.getUuid(), chapter.getTitle(), chapter.getSecondTitle(), chapter.getChapterNumber(), chapter.getTotalPages(), chapter.getSeries().getGenre(), chapter.getSummary(), chapter.getPublicationDate(), chapter.getSeries().getCoverArtworkUrl(), chapter.getSeries().getUuid());
     }
 }
