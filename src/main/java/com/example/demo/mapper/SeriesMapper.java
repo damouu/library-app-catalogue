@@ -39,6 +39,15 @@ public class SeriesMapper {
     }
 
     public SeriesSummaryDTO toSummaryDto(Series series) {
-        return new SeriesSummaryDTO(series.getUuid(), series.getTitle(), series.getGenre(), series.getCoverArtworkUrl(), series.getAuthor(), series.getIllustrator(), series.getPublisher());
+        return new SeriesSummaryDTO(
+                series.getUuid(),
+                series.getTitle(),
+                series.getGenre(),
+                series.getCoverArtworkUrl(),
+                series.getAuthor(),
+                series.getIllustrator(),
+                series.getPublisher(),
+                series.getFirstPrintPublicationDate(),
+                series.getLastPrintPublicationDate());
     }
 }
