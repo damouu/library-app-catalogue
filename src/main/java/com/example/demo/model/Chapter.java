@@ -18,6 +18,7 @@ import java.util.UUID;
 @Builder
 @Getter
 @Setter
+@Table(indexes = {@Index(name = "idx_chapter_number", columnList = "chapterNumber"), @Index(name = "idx_publication_date", columnList = "publicationDate"), @Index(name = "idx_series", columnList = "series_id"), @Index(name = "idx_deleted", columnList = "deletedAt")})
 public class Chapter {
     @Id
     @SequenceGenerator(name = "chapter_sequence", allocationSize = 1, sequenceName = "chapter_sequence")
