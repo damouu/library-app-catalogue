@@ -12,9 +12,12 @@ import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
 import com.example.demo.repository.ChapterRepository;
 import com.example.demo.repository.SeriesRepository;
-import com.example.demo.spec.ChapterSpecification;
 import com.example.demo.spec.SeriesSpecification;
+import com.example.demo.spec.SpecificationUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -44,7 +47,7 @@ public class SeriesService {
     /**
      * Gets series.
      *
-     * @param filter filter
+     * @param filter   filter
      * @param pageable pageable
      * @return SeriesSummaryDTO
      */
@@ -56,12 +59,14 @@ public class SeriesService {
     /**
      * Gets series chapters.
      *
-     * @param pageable pageable
+     * @param pageable   pageable
      * @param seriesUUID seriesUUID
      * @return series chapters
      */
+    @Cacheable(value = "series", key = "#seriesUUID + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
     public Page<ChapterSummaryDTO> getSeriesChapters(UUID seriesUUID, Pageable pageable) {
-        Specification<Chapter> specification = ChapterSpecification.belongsToSeries(seriesUUID).and(ChapterSpecification.notDeleted());
+        System.out.println(">>> CACHE MISS - Chargement depuis PostgreSQL : " + seriesUUID);
+        Specification<Chapter> specification = SpecificationUtils.belongsToSeries(seriesUUID).and(SpecificationUtils.notDeleted());
         return chapterRepository.findAll(specification, pageable).map(chapterMapper::toSummaryDto);
     }
 
@@ -74,6 +79,7 @@ public class SeriesService {
      * @throws SeriesAlreadyRegisteredException SeriesAlreadyRegisteredException
      */
     @Transactional
+    @Caching(evict = {@CacheEvict(value = "series", allEntries = true)})
     public Series createSeries(CreateSeriesRequest seriesRequest) {
         if (seriesRepository.existsByTitle(seriesRequest.title())) {
             throw new SeriesAlreadyRegisteredException(seriesRequest.title());

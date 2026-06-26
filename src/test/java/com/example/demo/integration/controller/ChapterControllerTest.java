@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,15 +37,14 @@ class ChapterControllerTest {
         ChapterSummaryDTO dto = new ChapterSummaryDTO(UUID.randomUUID(), "Naruto", "Action", 1, 10, "dede", "dede", null, "dede", UUID.randomUUID());
         Page<ChapterSummaryDTO> page = new PageImpl<>(List.of(dto));
         when(chapterService.getChapters(any(), any())).thenReturn(page);
-        mockMvc.perform(get("/public/chapters").param("title", "Naruto").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()) // Expect HTTP 200
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$.content[0].title").value("Naruto")).andExpect(jsonPath("$.content[0].chapterNumber").value(1));
+        mockMvc.perform(get("/public/chapters").param("title", "Naruto").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$.content[0].title").value("Naruto")).andExpect(jsonPath("$.content[0].chapterNumber").value(1));
     }
 
     @Test
     @DisplayName("GET /public/chapters/{uuid} - Should return a specific chapter")
     void testGetChapterByUUID() throws Exception {
-        ChapterSummaryDTO dto = new ChapterSummaryDTO(UUID.randomUUID(), "Naruto", "Action", 1, 10, "dede", "dede", "2008-10-06", "dede", UUID.randomUUID());
+        ChapterSummaryDTO dto = new ChapterSummaryDTO(UUID.randomUUID(), "Naruto", "Action", 1, 10, "dede", "dede", LocalDate.now(), "dede", UUID.randomUUID());
         when(chapterService.getChapterUUID(dto.uuid())).thenReturn(dto);
-        mockMvc.perform(get("/public/chapters/{chapterUUID}", dto.uuid()).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath("$.uuid").value(dto.uuid().toString())).andExpect(jsonPath("$.title").value(dto.title())).andExpect(jsonPath("$.publicationDate").value(dto.publicationDate()));
+        mockMvc.perform(get("/public/chapters/{chapterUUID}", dto.uuid()).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath("$.uuid").value(dto.uuid().toString())).andExpect(jsonPath("$.title").value(dto.title())).andExpect(jsonPath("$.publicationDate").value(dto.publicationDate().toString()));
     }
 }

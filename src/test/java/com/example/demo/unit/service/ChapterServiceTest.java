@@ -25,6 +25,7 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -87,7 +88,7 @@ class ChapterServiceTest {
 
     @Test
     void getChapterUUID() {
-        ChapterSummaryDTO dto = new ChapterSummaryDTO(chapter.getUuid(), "Naruto", "Action", 1, 10, "dede", "dede", "2008-10-06", "dede", UUID.randomUUID());
+        ChapterSummaryDTO dto = new ChapterSummaryDTO(chapter.getUuid(), "Naruto", "Action", 1, 10, "dede", "dede", LocalDate.now(), "dede", UUID.randomUUID());
         when(chapterRepository.findByUuidAndDeletedAtIsNull(chapter.getUuid())).thenReturn(Optional.ofNullable(chapter));
         when(chapterMapper.toSummaryDto(chapter)).thenReturn(dto);
         var chapterSummaryDTO = chapterService.getChapterUUID(chapter.getUuid());

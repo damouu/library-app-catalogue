@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,7 +39,7 @@ class SeriesControllerTest {
     @Test
     @DisplayName("GET /public/series - Should return a list of series")
     void testGetSeries() throws Exception {
-        SeriesSummaryDTO dto = new SeriesSummaryDTO(UUID.randomUUID(), "Naruto", "Action", "cover.jpg", "dede", "dede", "dede");
+        SeriesSummaryDTO dto = new SeriesSummaryDTO(UUID.randomUUID(), "Naruto", "Action", "cover.jpg", "dede", "dede", "dede", LocalDate.now(), LocalDate.now());
         Page<SeriesSummaryDTO> page = new PageImpl<>(List.of(dto));
         when(seriesService.getSeries(any(), any())).thenReturn(page);
         mockMvc.perform(get("/public/series").param("title", "Naruto").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath("$.content[0].title").value("Naruto"));
@@ -49,8 +50,8 @@ class SeriesControllerTest {
     @DisplayName("GET /public/series/{uuid}/chapters - Should return paginated chapters")
     void testGetSeriesChapters() throws Exception {
         UUID seriesUUID = UUID.randomUUID();
-        ChapterSummaryDTO dto1 = new ChapterSummaryDTO(UUID.randomUUID(), "Chapter 1", "Chapter 1", 1, 1, "dede", "dede", "dede", "dede", UUID.randomUUID());
-        ChapterSummaryDTO dto2 = new ChapterSummaryDTO(UUID.randomUUID(), "Chapter 2", "Chapter 2", 2, 2, "dede", "dede", "dede", "dede", UUID.randomUUID());
+        ChapterSummaryDTO dto1 = new ChapterSummaryDTO(UUID.randomUUID(), "Chapter 1", "Chapter 1", 1, 1, "dede", "dede", LocalDate.now(), "dede", UUID.randomUUID());
+        ChapterSummaryDTO dto2 = new ChapterSummaryDTO(UUID.randomUUID(), "Chapter 2", "Chapter 2", 2, 2, "dede", "dede", LocalDate.now(), "dede", UUID.randomUUID());
         Page<ChapterSummaryDTO> page = new PageImpl<>(List.of(dto1, dto2), PageRequest.of(0, 10), 2);
         when(seriesService.getSeriesChapters(eq(seriesUUID), any(Pageable.class))).thenReturn(page);
         mockMvc.perform(get("/public/series/{seriesUUID}/chapters", seriesUUID).param("page", "0").param("size", "10").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath("$.content[0].title").value("Chapter 1")).andExpect(jsonPath("$.content[1].title").value("Chapter 2")).andExpect(jsonPath("$.totalElements").value(2)).andExpect(jsonPath("$.size").value(10)).andExpect(jsonPath("$.number").value(0));

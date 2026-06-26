@@ -15,9 +15,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
 @Getter
 @Setter
+@Entity
+@Table(indexes = {@Index(name = "idx_series_deleted", columnList = "deletedAt")})
 public class Series {
     @Id
     @SequenceGenerator(name = "series_sequence", allocationSize = 1, sequenceName = "series_sequence")

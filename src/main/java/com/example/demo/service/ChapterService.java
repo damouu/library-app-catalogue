@@ -13,7 +13,11 @@ import com.example.demo.model.Series;
 import com.example.demo.repository.ChapterRepository;
 import com.example.demo.repository.SeriesRepository;
 import com.example.demo.spec.ChapterSpecification;
+import com.example.demo.spec.SpecificationUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -50,7 +54,7 @@ public class ChapterService {
     public Page<ChapterSummaryDTO> getChapters(ChapterFilterDTO filter, Pageable pageable) {
         LocalDate startOfWeek = LocalDate.now().with(DayOfWeek.MONDAY);
         LocalDate endOfWeek = LocalDate.now().with(DayOfWeek.SUNDAY);
-        Specification<Chapter> specification = "recent".equals(filter.type()) ? ChapterSpecification.publishedBetween(startOfWeek, endOfWeek) : ChapterSpecification.filterChapter(filter);
+        Specification<Chapter> specification = "recent".equals(filter.type()) ? SpecificationUtils.publishedBetween(startOfWeek, endOfWeek) : ChapterSpecification.filterChapter(filter);
         return chapterRepository.findAll(specification, pageable).map(chapterMapper::toSummaryDto);
     }
 
@@ -63,6 +67,7 @@ public class ChapterService {
      * @return the chapter uuid
      * @throws ChapterNotFoundException ChapterNotFoundException
      */
+    @Cacheable(value = "chapter", key = "#chapterUUID")
     public ChapterSummaryDTO getChapterUUID(UUID chapterUUID) {
         Chapter chapter = chapterRepository.findByUuidAndDeletedAtIsNull(chapterUUID).orElseThrow(() -> new ChapterNotFoundException(chapterUUID));
         return chapterMapper.toSummaryDto(chapter);
@@ -77,6 +82,7 @@ public class ChapterService {
      * @throws SeriesNotFoundException           seriesNotFoundException
      */
     @Transactional
+    @Caching(evict = {@CacheEvict(value = "chapter", allEntries = true)})
     public Chapter createChapter(CreateChapterRequest chapterRequest) {
         Series series = (Series) seriesRepository.findByUuid((chapterRequest.series_uuid())).orElseThrow(() -> new SeriesNotFoundException(chapterRequest.series_uuid()));
         if (chapterRepository.existsBySeries_UuidAndChapterNumber(chapterRequest.series_uuid(), chapterRequest.chapter_number())) {

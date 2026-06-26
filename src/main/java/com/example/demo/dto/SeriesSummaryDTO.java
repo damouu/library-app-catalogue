@@ -1,5 +1,7 @@
 package com.example.demo.dto;
 
+import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record SeriesSummaryDTO(
@@ -9,6 +11,8 @@ public record SeriesSummaryDTO(
         String coverArtworkUrl,
         String author,
         String illustration,
-        String publisher
-) {
+        String publisher,
+        LocalDate firstPrintPublicationDate,
+        LocalDate lastPrintPublicationDate
+) implements Serializable {
 }
