@@ -4,6 +4,7 @@ import com.example.demo.dto.ChapterFilterDTO;
 import com.example.demo.model.Chapter;
 import com.example.demo.repository.ChapterRepository;
 import com.example.demo.spec.ChapterSpecification;
+import com.example.demo.spec.SpecificationUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -67,7 +68,7 @@ class ChapterSpecificationTest extends ChapterSpecification {
     void testPublishedBetweenSpecification() {
         LocalDate start = LocalDate.of(2026, 1, 1);
         LocalDate end = LocalDate.of(2026, 5, 7);
-        Specification<Chapter> spec = ChapterSpecification.publishedBetween(start, end);
+        Specification<Chapter> spec = SpecificationUtils.publishedBetween(start, end);
         List<Chapter> results = repository.findAll(spec);
         assertThat(results).hasSize(1).extracting(Chapter::getTitle).containsExactlyInAnyOrder("The Fellowship").doesNotContain("The Two Towers");
     }
