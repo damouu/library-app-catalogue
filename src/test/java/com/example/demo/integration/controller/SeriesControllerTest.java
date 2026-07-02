@@ -49,12 +49,12 @@ class SeriesControllerTest {
     @Test
     @DisplayName("GET /public/series/{uuid}/chapters - Should return paginated chapters")
     void testGetSeriesChapters() throws Exception {
-        UUID seriesUUID = UUID.randomUUID();
-        ChapterSummaryDTO dto1 = new ChapterSummaryDTO(UUID.randomUUID(), "Chapter 1", "Chapter 1", 1, 1, "dede", "dede", LocalDate.now(), "dede", UUID.randomUUID());
-        ChapterSummaryDTO dto2 = new ChapterSummaryDTO(UUID.randomUUID(), "Chapter 2", "Chapter 2", 2, 2, "dede", "dede", LocalDate.now(), "dede", UUID.randomUUID());
+        SeriesSummaryDTO seriesDTO = new SeriesSummaryDTO(UUID.randomUUID(), "Naruto", "Shonen", "https://example.com/naruto.jpg", "Masashi Kishimoto", "Masashi Kishimoto", "Shueisha", LocalDate.of(1999, 9, 21), LocalDate.of(2014, 11, 10));
+        ChapterSummaryDTO dto1 = new ChapterSummaryDTO(UUID.randomUUID(), "Naruto", "Naruto", 12, 1, "Action", "dede", null, null, seriesDTO);
+        ChapterSummaryDTO dto2 = new ChapterSummaryDTO(UUID.randomUUID(), "Naruto", "Naruto", 12, 1, "Action", "dede", null, null, seriesDTO);
         Page<ChapterSummaryDTO> page = new PageImpl<>(List.of(dto1, dto2), PageRequest.of(0, 10), 2);
-        when(seriesService.getSeriesChapters(eq(seriesUUID), any(Pageable.class))).thenReturn(page);
-        mockMvc.perform(get("/public/series/{seriesUUID}/chapters", seriesUUID).param("page", "0").param("size", "10").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath("$.content[0].title").value("Chapter 1")).andExpect(jsonPath("$.content[1].title").value("Chapter 2")).andExpect(jsonPath("$.totalElements").value(2)).andExpect(jsonPath("$.size").value(10)).andExpect(jsonPath("$.number").value(0));
+        when(seriesService.getSeriesChapters(eq(seriesDTO.series_uuid()), any(Pageable.class))).thenReturn(page);
+        mockMvc.perform(get("/public/series/{seriesUUID}/chapters", seriesDTO.series_uuid()).param("page", "0").param("size", "10").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath("$.content[0].title").value("Naruto")).andExpect(jsonPath("$.content[1].title").value("Naruto")).andExpect(jsonPath("$.totalElements").value(2)).andExpect(jsonPath("$.size").value(10)).andExpect(jsonPath("$.number").value(0));
     }
 
 }

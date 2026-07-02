@@ -3,6 +3,8 @@ package com.example.demo.unit.service;
 import com.example.demo.dto.ChapterFilterDTO;
 import com.example.demo.dto.ChapterSummaryDTO;
 import com.example.demo.dto.CreateChapterRequest;
+import com.example.demo.dto.SeriesSummaryDTO;
+import com.example.demo.event.publish.CatalogueEventPublisher;
 import com.example.demo.exception.ChapterAlreadyRegisteredException;
 import com.example.demo.exception.ChapterNotFoundException;
 import com.example.demo.exception.SeriesNotFoundException;
@@ -11,7 +13,6 @@ import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
 import com.example.demo.repository.ChapterRepository;
 import com.example.demo.repository.SeriesRepository;
-import com.example.demo.event.publish.CatalogueEventPublisher;
 import com.example.demo.service.ChapterService;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,8 +89,9 @@ class ChapterServiceTest {
 
     @Test
     void getChapterUUID() {
-        ChapterSummaryDTO dto = new ChapterSummaryDTO(chapter.getUuid(), "Naruto", "Action", 1, 10, "dede", "dede", LocalDate.now(), "dede", UUID.randomUUID());
-        when(chapterRepository.findByUuidAndDeletedAtIsNull(chapter.getUuid())).thenReturn(Optional.ofNullable(chapter));
+        SeriesSummaryDTO seriesDTO = new SeriesSummaryDTO(UUID.randomUUID(), "Naruto", "Shonen", "https://example.com/naruto.jpg", "Masashi Kishimoto", "Masashi Kishimoto", "Shueisha", LocalDate.of(1999, 9, 21), LocalDate.of(2014, 11, 10));
+        ChapterSummaryDTO dto = new ChapterSummaryDTO(chapter.getUuid(), "Naruto", "Naruto", 12, 1, "Action", "dede", null, null, seriesDTO);
+        when(chapterRepository.findByUuidAndDeletedAtIsNull(dto.uuid())).thenReturn(Optional.ofNullable(chapter));
         when(chapterMapper.toSummaryDto(chapter)).thenReturn(dto);
         var chapterSummaryDTO = chapterService.getChapterUUID(chapter.getUuid());
         assertEquals(chapterSummaryDTO.uuid(), chapter.getUuid());

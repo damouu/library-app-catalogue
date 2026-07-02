@@ -3,6 +3,7 @@ package com.example.demo.mapper;
 import com.example.demo.dto.ChapterCreatedEventData;
 import com.example.demo.dto.ChapterSummaryDTO;
 import com.example.demo.dto.CreateChapterRequest;
+import com.example.demo.dto.SeriesSummaryDTO;
 import com.example.demo.model.Chapter;
 import com.example.demo.model.Series;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,9 @@ public class ChapterMapper {
     }
 
     public ChapterSummaryDTO toSummaryDto(Chapter chapter) {
-        return new ChapterSummaryDTO(chapter.getUuid(), chapter.getTitle(), chapter.getSecondTitle(), chapter.getChapterNumber(), chapter.getTotalPages(), chapter.getSeries().getGenre(), chapter.getSummary(), chapter.getPublicationDate(), chapter.getSeries().getCoverArtworkUrl(), chapter.getSeries().getUuid());
+
+        SeriesSummaryDTO seriesDTO = new SeriesSummaryDTO(chapter.getSeries().getUuid(), chapter.getSeries().getTitle(), chapter.getSeries().getGenre(), chapter.getSeries().getCoverArtworkUrl(), chapter.getSeries().getAuthor(), chapter.getSeries().getIllustrator(), chapter.getSeries().getPublisher(), chapter.getSeries().getFirstPrintPublicationDate(), chapter.getSeries().getLastPrintPublicationDate());
+
+        return new ChapterSummaryDTO(chapter.getUuid(), chapter.getTitle(), chapter.getSecondTitle(), chapter.getChapterNumber(), chapter.getTotalPages(), chapter.getSeries().getGenre(), chapter.getSummary(), chapter.getPublicationDate(), chapter.getSeries().getCoverArtworkUrl(), seriesDTO);
     }
 }

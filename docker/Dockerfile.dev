@@ -18,4 +18,4 @@ ENV JAVA_TOOL_OPTIONS="-javaagent:/opt/otel-agent.jar"
 
 EXPOSE 8083
 
-CMD ["java", "-jar", "target/catalogue-service-1.7.2-SNAPSHOT.jar", "--server.port=8083"]
+ENTRYPOINT ["java", "-javaagent:/opt/otel-agent.jar", "-jar", "target/catalogue-service-1.7.2-SNAPSHOT.jar"]

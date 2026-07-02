@@ -14,6 +14,6 @@ public record ChapterSummaryDTO(
         String summary,
         LocalDate publicationDate,
         String coverArtworkUrl,
-        UUID seriesUUID
+        SeriesSummaryDTO series
 ) implements Serializable {
 }
