@@ -53,8 +53,8 @@ class SeriesControllerTest {
         ChapterSummaryDTO dto1 = new ChapterSummaryDTO(UUID.randomUUID(), "Naruto", "Naruto", 12, 1, "Action", "dede", null, null, seriesDTO);
         ChapterSummaryDTO dto2 = new ChapterSummaryDTO(UUID.randomUUID(), "Naruto", "Naruto", 12, 1, "Action", "dede", null, null, seriesDTO);
         Page<ChapterSummaryDTO> page = new PageImpl<>(List.of(dto1, dto2), PageRequest.of(0, 10), 2);
-        when(seriesService.getSeriesChapters(eq(seriesDTO.series_uuid()), any(Pageable.class))).thenReturn(page);
-        mockMvc.perform(get("/public/series/{seriesUUID}/chapters", seriesDTO.series_uuid()).param("page", "0").param("size", "10").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath("$.content[0].title").value("Naruto")).andExpect(jsonPath("$.content[1].title").value("Naruto")).andExpect(jsonPath("$.totalElements").value(2)).andExpect(jsonPath("$.size").value(10)).andExpect(jsonPath("$.number").value(0));
+        when(seriesService.getSeriesChapters(eq(seriesDTO.uuid()), any(Pageable.class))).thenReturn(page);
+        mockMvc.perform(get("/public/series/{seriesUUID}/chapters", seriesDTO.uuid()).param("page", "0").param("size", "10").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath("$.content[0].title").value("Naruto")).andExpect(jsonPath("$.content[1].title").value("Naruto")).andExpect(jsonPath("$.totalElements").value(2)).andExpect(jsonPath("$.size").value(10)).andExpect(jsonPath("$.number").value(0));
     }
 
 }
