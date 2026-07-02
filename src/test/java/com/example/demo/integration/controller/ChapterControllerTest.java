@@ -2,6 +2,7 @@ package com.example.demo.integration.controller;
 
 import com.example.demo.controller.ChapterController;
 import com.example.demo.dto.ChapterSummaryDTO;
+import com.example.demo.dto.SeriesSummaryDTO;
 import com.example.demo.service.ChapterService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,16 +35,18 @@ class ChapterControllerTest {
     @Test
     @DisplayName("GET /public/chapters - Should return a list of chapters")
     void testGetChapters() throws Exception {
-        ChapterSummaryDTO dto = new ChapterSummaryDTO(UUID.randomUUID(), "Naruto", "Action", 1, 10, "dede", "dede", null, "dede", UUID.randomUUID());
+        SeriesSummaryDTO seriesDTO = new SeriesSummaryDTO(UUID.randomUUID(), "Naruto", "Shonen", "https://example.com/naruto.jpg", "Masashi Kishimoto", "Masashi Kishimoto", "Shueisha", LocalDate.of(1999, 9, 21), LocalDate.of(2014, 11, 10));
+        ChapterSummaryDTO dto = new ChapterSummaryDTO(UUID.randomUUID(), "Naruto", "Naruto", 12, 1, "Action", "dede", null, null, seriesDTO);
         Page<ChapterSummaryDTO> page = new PageImpl<>(List.of(dto));
         when(chapterService.getChapters(any(), any())).thenReturn(page);
-        mockMvc.perform(get("/public/chapters").param("title", "Naruto").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$.content[0].title").value("Naruto")).andExpect(jsonPath("$.content[0].chapterNumber").value(1));
+        mockMvc.perform(get("/public/chapters").param("title", "Naruto").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$.content[0].title").value("Naruto")).andExpect(jsonPath("$.content[0].chapterNumber").value(12));
     }
 
     @Test
     @DisplayName("GET /public/chapters/{uuid} - Should return a specific chapter")
     void testGetChapterByUUID() throws Exception {
-        ChapterSummaryDTO dto = new ChapterSummaryDTO(UUID.randomUUID(), "Naruto", "Action", 1, 10, "dede", "dede", LocalDate.now(), "dede", UUID.randomUUID());
+        SeriesSummaryDTO seriesDTO = new SeriesSummaryDTO(UUID.randomUUID(), "Naruto", "Shonen", "https://example.com/naruto.jpg", "Masashi Kishimoto", "Masashi Kishimoto", "Shueisha", LocalDate.of(1999, 9, 21), LocalDate.of(2014, 11, 10));
+        ChapterSummaryDTO dto = new ChapterSummaryDTO(UUID.randomUUID(), "Naruto", "Naruto", 12, 1, "Action", "dede", LocalDate.now(), null, seriesDTO);
         when(chapterService.getChapterUUID(dto.uuid())).thenReturn(dto);
         mockMvc.perform(get("/public/chapters/{chapterUUID}", dto.uuid()).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath("$.uuid").value(dto.uuid().toString())).andExpect(jsonPath("$.title").value(dto.title())).andExpect(jsonPath("$.publicationDate").value(dto.publicationDate().toString()));
     }
