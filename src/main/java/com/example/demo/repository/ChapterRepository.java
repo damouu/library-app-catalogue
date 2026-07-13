@@ -22,4 +22,8 @@ public interface ChapterRepository extends JpaRepository<Chapter, Integer>, JpaS
     Optional<Chapter> findByUuidAndDeletedAtIsNull(UUID chapterUUID);
 
     boolean existsBySeries_UuidAndChapterNumber(UUID seriesUuid, Integer chapterNumber);
+
+    Page<Chapter> findBySeriesUuidAndChapterNumberGreaterThanOrderByChapterNumberAsc(UUID seriesUuid, Integer chapterNumber, Pageable pageable);
+
+    Optional<Chapter> findByUuid(UUID chapterUuid);
 }

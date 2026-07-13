@@ -22,6 +22,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -55,6 +56,16 @@ class SeriesControllerTest {
         Page<ChapterSummaryDTO> page = new PageImpl<>(List.of(dto1, dto2), PageRequest.of(0, 10), 2);
         when(seriesService.getSeriesChapters(eq(seriesDTO.uuid()), any(Pageable.class))).thenReturn(page);
         mockMvc.perform(get("/public/series/{seriesUUID}/chapters", seriesDTO.uuid()).param("page", "0").param("size", "10").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath("$.content[0].title").value("Naruto")).andExpect(jsonPath("$.content[1].title").value("Naruto")).andExpect(jsonPath("$.totalElements").value(2)).andExpect(jsonPath("$.size").value(10)).andExpect(jsonPath("$.number").value(0));
+    }
+
+    @Test
+    void should_get_next_chapters() throws Exception {
+        UUID seriesUuid = UUID.randomUUID();
+        UUID chapterUuid = UUID.randomUUID();
+        ChapterSummaryDTO dto = new ChapterSummaryDTO(UUID.randomUUID(), "One Piece", "Romance Dawn", 101, 180, "Shonen", null, LocalDate.now(), null, null);
+        when(seriesService.getNextChapters(seriesUuid, chapterUuid, 3)).thenReturn(List.of(dto));
+        mockMvc.perform(get("/public/series/{seriesUUID}/chapters/{chapterUUID}/next", seriesUuid, chapterUuid)).andExpect(status().isOk()).andExpect(jsonPath("$[0].chapterNumber").value(101)).andExpect(jsonPath("$[0].title").value("One Piece"));
+        verify(seriesService).getNextChapters(seriesUuid, chapterUuid, 3);
     }
 
 }

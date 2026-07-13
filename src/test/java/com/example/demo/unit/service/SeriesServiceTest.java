@@ -2,6 +2,7 @@ package com.example.demo.unit.service;
 
 import com.example.demo.dto.*;
 import com.example.demo.event.publish.CatalogueEventPublisher;
+import com.example.demo.exception.ChapterNotFoundException;
 import com.example.demo.exception.SeriesAlreadyRegisteredException;
 import com.example.demo.factory.SeriesEventFactory;
 import com.example.demo.mapper.ChapterMapper;
@@ -24,6 +25,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.instancio.Select.field;
@@ -128,5 +130,36 @@ class SeriesServiceTest {
         verify(seriesEventFactory, Mockito.times(0)).seriesCreatedEvent(any(Series.class), eq("SERIES_CREATED"), eq("library-app-catalogue-v2"), any(UUID.class));
         verify(seriesRepository, Mockito.times(1)).existsByTitle(series.getTitle());
         verify(seriesRepository, Mockito.times(0)).save(any(Series.class));
+    }
+
+    @Test
+    void should_get_next_chapters() {
+        UUID seriesUuid = UUID.randomUUID();
+        UUID currentChapterUuid = UUID.randomUUID();
+        Chapter current = Instancio.create(Chapter.class);
+        current.setChapterNumber(5);
+        Chapter next1 = Instancio.create(Chapter.class);
+        next1.setChapterNumber(6);
+        Chapter next2 = Instancio.create(Chapter.class);
+        next2.setChapterNumber(7);
+        Page<Chapter> page = new PageImpl<>(List.of(next1, next2));
+        when(chapterRepository.findByUuid(currentChapterUuid)).thenReturn(Optional.of(current));
+        when(chapterRepository.findBySeriesUuidAndChapterNumberGreaterThanOrderByChapterNumberAsc(eq(seriesUuid), eq(5), any(Pageable.class))).thenReturn(page);
+        when(chapterMapper.toSummaryDto(next1)).thenReturn(Instancio.create(ChapterSummaryDTO.class));
+        when(chapterMapper.toSummaryDto(next2)).thenReturn(Instancio.create(ChapterSummaryDTO.class));
+        List<ChapterSummaryDTO> result = seriesService.getNextChapters(seriesUuid, currentChapterUuid, 3);
+        assertEquals(2, result.size());
+        verify(chapterRepository).findByUuid(currentChapterUuid);
+        verify(chapterRepository).findBySeriesUuidAndChapterNumberGreaterThanOrderByChapterNumberAsc(eq(seriesUuid), eq(5), any(Pageable.class));
+    }
+
+    @Test
+    void should_throw_when_current_chapter_not_found() {
+        UUID seriesUuid = UUID.randomUUID();
+        UUID chapterUuid = UUID.randomUUID();
+        when(chapterRepository.findByUuid(chapterUuid)).thenReturn(Optional.empty());
+        assertThrows(ChapterNotFoundException.class, () -> seriesService.getNextChapters(seriesUuid, chapterUuid, 3));
+        verify(chapterRepository).findByUuid(chapterUuid);
+        verifyNoMoreInteractions(chapterRepository);
     }
 }

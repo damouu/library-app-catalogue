@@ -15,6 +15,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Validated
@@ -35,6 +36,11 @@ public class SeriesController {
     @GetMapping(path = "/{seriesUUID}/chapters", produces = MediaType.APPLICATION_JSON_VALUE)
     public Page<ChapterSummaryDTO> getSeriesChapters(Pageable pageable, @PathVariable UUID seriesUUID) {
         return seriesService.getSeriesChapters(seriesUUID, pageable);
+    }
+
+    @GetMapping(path = "/{seriesUUID}/chapters/{chapterUUID}/next", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ChapterSummaryDTO> getNextChapters(@PathVariable UUID seriesUUID, @PathVariable UUID chapterUUID, @RequestParam(defaultValue = "3") int size) {
+        return seriesService.getNextChapters(seriesUUID, chapterUUID, size);
     }
 
     @PostMapping

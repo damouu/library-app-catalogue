@@ -5,6 +5,7 @@ import com.example.demo.dto.CreateSeriesRequest;
 import com.example.demo.dto.SeriesFilterDTO;
 import com.example.demo.dto.SeriesSummaryDTO;
 import com.example.demo.event.publish.CatalogueEventPort;
+import com.example.demo.exception.ChapterNotFoundException;
 import com.example.demo.exception.SeriesAlreadyRegisteredException;
 import com.example.demo.mapper.ChapterMapper;
 import com.example.demo.mapper.SeriesMapper;
@@ -19,11 +20,13 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -88,5 +91,11 @@ public class SeriesService {
         Series seriesSaved = seriesRepository.save(series);
         catalogueEventPort.publishSeriesCreated(seriesSaved);
         return seriesSaved;
+    }
+
+    public List<ChapterSummaryDTO> getNextChapters(UUID seriesUuid, UUID chapterUuid, int size) {
+        Chapter current = chapterRepository.findByUuid(chapterUuid).orElseThrow(() -> new ChapterNotFoundException(chapterUuid));
+        Page<Chapter> page = chapterRepository.findBySeriesUuidAndChapterNumberGreaterThanOrderByChapterNumberAsc(seriesUuid, current.getChapterNumber(), PageRequest.of(0, size));
+        return page.stream().map(chapterMapper::toSummaryDto).toList();
     }
 }
