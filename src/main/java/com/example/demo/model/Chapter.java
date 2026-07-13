@@ -51,7 +51,7 @@ public class Chapter {
     @Column(nullable = false)
     private LocalDate publicationDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "series_id", referencedColumnName = "id")
     @JsonIgnoreProperties({"chapters", "handler", "hibernateLazyInitializer"})
     private Series series;
