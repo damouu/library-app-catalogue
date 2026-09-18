@@ -45,6 +45,7 @@ public class Series {
     @Column(nullable = false)
     private String publisher;
 
+    @Column(nullable = false)
     private LocalDate lastPrintPublicationDate;
 
     @Column(nullable = false)
